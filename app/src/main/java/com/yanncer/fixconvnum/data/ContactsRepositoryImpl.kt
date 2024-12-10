@@ -74,16 +74,19 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
                 val (firstName, lastName) = contactNames[id] ?: Pair("", "")
 
                 val phoneNumbers = fetchPhoneNumbers(id)
-
-                contacts.add(
-                    Contact(
-                        id = id,
-                        firstName = firstName,
-                        lastName = lastName,
-                        displayName = displayName,
-                        phoneNumbers = phoneNumbers
+                if (phoneNumbers.isNotEmpty()) {
+                    contacts.add(
+                        Contact(
+                            id = id,
+                            firstName = firstName,
+                            lastName = lastName,
+                            displayName = displayName,
+                            phoneNumbers = phoneNumbers
+                        )
                     )
-                )
+                }
+
+
             }
         }
         contacts

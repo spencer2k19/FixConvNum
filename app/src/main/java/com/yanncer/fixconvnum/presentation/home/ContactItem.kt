@@ -1,10 +1,13 @@
 package com.yanncer.fixconvnum.presentation.home
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -14,21 +17,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yanncer.fixconvnum.R
+import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
 
 @Composable
 fun ContactItem(contact: Contact) {
-    Row(modifier = Modifier.padding(bottom = 20.dp)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+
+        .padding(bottom = 20.dp)) {
 
        val phoneNumbers = contact.phoneNumbers.joinToString {
            it.number
        }
+
+        Log.e("contact","Contact: $contact")
+
+
 
         val displayData = if(contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
             "${contact.firstName[0]}${contact.lastName[0]}"
@@ -38,33 +53,54 @@ fun ContactItem(contact: Contact) {
             "Ic"
         }
 
-        Box(modifier = Modifier
-            .width(50.dp)
-            .height(50.dp)
-            .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
+        if(contact.hasPhoneNumberIssue()) {
+            Image(painter = painterResource(id = R.drawable.person_crop_circle_badge_exclamationmark),
+                contentDescription = "Incorrect contact",
 
-        ) {
-            Text(text = displayData, style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 18.sp,
-                color = Color.Black
-            ), modifier = Modifier.align(Alignment.Center))
+                modifier  = Modifier.width(50.dp)
+                    .height(50.dp)
+                    , contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(Color.Red)
+
+            )
+        } else {
+            Box(modifier = Modifier
+                .width(50.dp)
+                .height(50.dp)
+                .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
+
+            ) {
+                Text(text = displayData, style = TextStyle(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp,
+                    color = Color.Black
+                ), modifier = Modifier.align(Alignment.Center))
+            }
         }
+
+
 
         Spacer(modifier = Modifier.width(10.dp))
         Column(horizontalAlignment = Alignment.Start) {
-            Row {
-               Text(text = contact.firstName, style = TextStyle(
-                   fontWeight = FontWeight.W400
-               )
-               )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(text = contact.lastName, style = TextStyle(
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
+            if(contact.firstName.isEmpty() || contact.lastName.isEmpty()) {
+                Text(text = contact.displayName, style = TextStyle(
+                    fontWeight = FontWeight.W400
                 ))
+            } else {
+                Row {
+                    Text(text = contact.firstName, style = TextStyle(
+                        fontWeight = FontWeight.W400
+                    )
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(text = contact.lastName, style = TextStyle(
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold
+                    ))
 
+                }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = phoneNumbers, style = TextStyle(
                 lineHeight = 20.sp
