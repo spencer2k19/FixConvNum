@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
 import com.yanncer.fixconvnum.presentation.components.CustomOutlinedTextField
+import com.yanncer.fixconvnum.presentation.components.CustomProgress
 import com.yanncer.fixconvnum.presentation.components.FilledTextField
 import com.yanncer.fixconvnum.presentation.infos.InfosView
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
@@ -67,7 +70,13 @@ fun HomeView(
     var showBottomSheet by remember { mutableStateOf(false) }
 
 
+    HandleContactPermission(
+        onPermissionGranted = { viewModel.fetchContacts() },
+        onPermissionDenied = {
 
+        },
+        context = LocalContext.current
+    )
 
 
     Scaffold(containerColor = Color.White ,topBar = {
@@ -112,9 +121,15 @@ fun HomeView(
 
 
                // Spacer(modifier = Modifier.height(20.dp))
+
+                if(state.isLoading) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    CustomProgress(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
-                    items(25) {
-                        ContactItem()
+
+                    items(state.contacts) {contact ->
+                        ContactItem(contact)
                     }
                 }
 

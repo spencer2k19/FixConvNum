@@ -19,17 +19,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.yanncer.fixconvnum.domain.models.Contact
+import com.yanncer.fixconvnum.domain.models.PhoneNumber
 
 @Composable
-fun ContactItem() {
+fun ContactItem(contact: Contact) {
     Row(modifier = Modifier.padding(bottom = 20.dp)) {
+
+       val phoneNumbers = contact.phoneNumbers.joinToString {
+           it.number
+       }
+
+        val displayData = if(contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
+            "${contact.firstName[0]}${contact.lastName[0]}"
+        } else if (contact.displayName.isNotEmpty()) {
+            contact.displayName[0].toString()
+        } else {
+            "Ic"
+        }
+
         Box(modifier = Modifier
             .width(50.dp)
             .height(50.dp)
             .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
 
         ) {
-            Text(text = "SH", style = TextStyle(
+            Text(text = displayData, style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 18.sp,
                 color = Color.Black
@@ -39,19 +54,19 @@ fun ContactItem() {
         Spacer(modifier = Modifier.width(10.dp))
         Column(horizontalAlignment = Alignment.Start) {
             Row {
-               Text(text = "JOHN", style = TextStyle(
+               Text(text = contact.firstName, style = TextStyle(
                    fontWeight = FontWeight.W400
                )
                )
                 Spacer(modifier = Modifier.width(5.dp))
-                Text(text = "DOECHART", style = TextStyle(
+                Text(text = contact.lastName, style = TextStyle(
                     color = Color.Black,
                     fontWeight = FontWeight.Bold
                 ))
 
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "+229 6161616161, +228 61236323, +229 63616263, 69616161, 64646464", style = TextStyle(
+            Text(text = phoneNumbers, style = TextStyle(
                 lineHeight = 20.sp
             ), modifier = Modifier.padding(end = 10.dp)
             )
@@ -78,5 +93,10 @@ fun ContactItem() {
 @Preview
 @Composable
 fun PrevContactItem() {
-    ContactItem()
+    val contact = Contact(1L,"Dupont","Dupont", "Dupont Dupont", listOf(
+        PhoneNumber("+22861616161",1,"label"),
+        PhoneNumber("+22861616162",1,"label"),
+        PhoneNumber("+22861616163",1,"label"),
+    ))
+    ContactItem(contact)
 }
