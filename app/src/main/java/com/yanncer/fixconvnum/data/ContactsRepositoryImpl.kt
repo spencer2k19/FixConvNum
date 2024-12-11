@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.data
 import android.content.ContentProviderOperation
 import android.content.Context
 import android.provider.ContactsContract
+import com.yanncer.fixconvnum.common.PrefSingleton
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
 import com.yanncer.fixconvnum.domain.repository.ContactsRepository
@@ -75,7 +76,7 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
                 val (firstName, lastName) = contactNames[id] ?: Pair("", "")
 
                 val phoneNumbers = fetchPhoneNumbers(id)
-                if (phoneNumbers.isNotEmpty()) {
+                if (phoneNumbers.isNotEmpty() && !PrefSingleton.getBool(id.toString())) {
                     contacts.add(
                         Contact(
                             id = id,
@@ -116,6 +117,12 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
             contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
         }
 
+    }
+
+    override suspend fun removeContact(contactId: Long, contacts: List<Contact>): List<Contact>{
+      return contacts.filter {
+          it.id != contactId
+      }
     }
 
     private fun fetchPhoneNumbers(contactId:Long): List<PhoneNumber> {

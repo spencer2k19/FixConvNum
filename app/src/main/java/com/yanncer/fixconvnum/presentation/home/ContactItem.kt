@@ -43,7 +43,10 @@ import com.yanncer.fixconvnum.domain.models.PhoneNumber
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
 
 @Composable
-fun ContactItem(contact: Contact) {
+fun ContactItem(contact: Contact,
+        onRemove: () -> Unit,
+                onFitContact: () -> Unit
+) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             when(it) {
@@ -52,7 +55,7 @@ fun ContactItem(contact: Contact) {
                     false
                 }
                 SwipeToDismissBoxValue.StartToEnd -> {
-
+                    onRemove()
                     false
                 }
                 else -> false
@@ -62,8 +65,8 @@ fun ContactItem(contact: Contact) {
     )
 
 
-    SwipeToDismissBox(state = dismissState
-
+    SwipeToDismissBox(state = dismissState,
+            enableDismissFromEndToStart = contact.hasPhoneNumberIssue()
         ,backgroundContent = {
         val color = when (dismissState.dismissDirection) {
             SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFFA500)
@@ -232,5 +235,9 @@ fun PrevContactItem() {
         PhoneNumber("+22861616162",1,"label"),
         PhoneNumber("+22861616163",1,"label"),
     ))
-    ContactItem(contact)
+    ContactItem(contact, onRemove = {
+
+    }, onFitContact = {
+
+    })
 }

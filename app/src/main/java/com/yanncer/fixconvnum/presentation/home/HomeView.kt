@@ -20,15 +20,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -52,6 +55,7 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
 import com.yanncer.fixconvnum.presentation.components.CustomProgress
 import com.yanncer.fixconvnum.presentation.components.FilledTextField
@@ -67,6 +71,7 @@ fun HomeView(
 ) {
 
     val state = viewModel.state.value
+    val showRemoveDialogState = viewModel.showRemoveDialogState.value
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -136,6 +141,8 @@ fun HomeView(
                     snackbarHostState.showSnackbar(event.message)
                 }
 
+
+
             }
         }
     }
@@ -188,8 +195,6 @@ fun HomeView(
                 }
 
 
-
-
                 // Spacer(modifier = Modifier.height(20.dp))
 
                 if (state.isLoading && state.contacts.isEmpty()) {
@@ -198,8 +203,14 @@ fun HomeView(
                 }
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
 
-                    itemsIndexed(state.contacts) { index,contact ->
-                        ContactItem(contact)
+                    itemsIndexed(state.contacts, key = {index: Int, item: Contact ->
+                        item.id
+                    }) { index,contact ->
+                        ContactItem(contact, onRemove = {
+                           viewModel.showRemoveDialog(contact)
+                        }, onFitContact = {
+
+                        })
 //                        if (index < state.contacts.lastIndex) {
 //                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
 //                        }
@@ -263,6 +274,40 @@ fun HomeView(
                 // Sheet content
                 InfosView()
             }
+        }
+
+        if (showRemoveDialogState) {
+            AlertDialog(
+                containerColor = Color.White,
+                onDismissRequest = {
+                    viewModel.dismissRemoveDialog()
+                },
+
+                text = {
+                    Text(text = "Êtes-vous sûr de vouloir ignorer ce contact ? Cette action est irréversible !")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                       viewModel.dismissRemoveDialog()
+                       viewModel.removeContact()
+                    }) {
+                        Text(text = "Oui", style = MaterialTheme.typography.bodyMedium.copy(
+                            color = AccentColor,
+                            fontWeight = FontWeight.Bold
+                        ))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                      viewModel.dismissRemoveDialog()
+                    }) {
+                        Text(text = "Non",  style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        ))
+                    }
+                }
+            )
         }
 
     }
