@@ -51,7 +51,7 @@ fun ContactItem(contact: Contact,
         confirmValueChange = {
             when(it) {
                 SwipeToDismissBoxValue.EndToStart -> {
-
+                    onFitContact()
                     false
                 }
                 SwipeToDismissBoxValue.StartToEnd -> {

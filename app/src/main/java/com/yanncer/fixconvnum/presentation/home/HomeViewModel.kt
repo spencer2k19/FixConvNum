@@ -51,6 +51,34 @@ class HomeViewModel @Inject constructor(
         _showRemoveDialogState.value = false
     }
 
+    fun getDisplayContentOfContact(contact: Contact): String {
+        return  if (contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
+            "${contact.firstName} ${contact.lastName}"
+        } else contact.displayName
+    }
+
+    fun fixOneContact(contact: Contact) {
+        useCases.fixContacts(listOf(contact)).onEach {result ->
+            when(result) {
+                is Resource.Loading -> {
+                    _state.value =  state.value.copy(isLoading = true)
+                }
+                is Resource.Error -> {
+                    _eventFlow.emit(UIEvent.ShowSnackbar(message = result.message?:"Une erreur s'est produite. Veuillez réessayer ultérieurement"))
+                    _state.value = state.value.copy(isLoading = false)
+                }
+                is Resource.Success -> {
+                    _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList())
+                    contact.let {
+
+                    }
+
+                    _eventFlow.emit(UIEvent.ShowSnackbar(message ="Le contact ${getDisplayContentOfContact(contact)} a été corrigé avec succès ✅"))
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
     fun removeContact() {
         state.value.contact?.let {
             Log.e("contact","Contact to be removed: $it")
@@ -63,10 +91,8 @@ class HomeViewModel @Inject constructor(
 
                     is Resource.Success -> {
                         _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList(), contact = null)
-                        val displayName = if (it.firstName.isNotEmpty() && it.lastName.isNotEmpty()) {
-                            "${it.firstName} ${it.lastName}"
-                        } else it.displayName
-                        _eventFlow.emit(UIEvent.ShowSnackbar(message ="Le contact $displayName été retiré ✅"))
+
+                        _eventFlow.emit(UIEvent.ShowSnackbar(message ="Le contact ${getDisplayContentOfContact(it)} été retiré ✅"))
                     }
 
                     else -> {

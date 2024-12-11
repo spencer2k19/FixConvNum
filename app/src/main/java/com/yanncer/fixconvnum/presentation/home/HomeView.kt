@@ -209,7 +209,7 @@ fun HomeView(
                         ContactItem(contact, onRemove = {
                            viewModel.showRemoveDialog(contact)
                         }, onFitContact = {
-
+                            viewModel.fixOneContact(contact)
                         })
 //                        if (index < state.contacts.lastIndex) {
 //                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
