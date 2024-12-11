@@ -47,7 +47,6 @@ fun CustomFilledButton(
 
     ) {
         if(isLoading) {
-            CircularProgressIndicator()
             CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp,
                 modifier = Modifier.width(24.dp).height(24.dp))
         } else {

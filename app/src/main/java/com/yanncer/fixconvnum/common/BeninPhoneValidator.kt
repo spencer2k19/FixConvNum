@@ -18,15 +18,15 @@ object BeninPhoneValidator {
     private fun String.withoutSpaces(): String = replace("\\s".toRegex(), "")
 
     // Extension to get the 8 last digits
-    private fun String.lastEightDigits(): String =
+     fun String.lastEightDigits(): String =
         withoutSpaces().takeLast(8)
 
     // Verify if a number is a local number
-    private fun String.isLocalNumber(): Boolean =
+     fun String.isLocalNumber(): Boolean =
         withoutSpaces().matches(localPhoneRegex)
 
     //  Verify if a number is an extended number
-    private fun String.isExtendedNumber(): Boolean =
+     fun String.isExtendedNumber(): Boolean =
         withoutSpaces().matches(extendedPhoneRegex)
 
     // Principal method of validation for a contact

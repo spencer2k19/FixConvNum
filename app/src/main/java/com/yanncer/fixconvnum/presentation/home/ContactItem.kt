@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,17 +33,20 @@ import com.yanncer.fixconvnum.domain.models.PhoneNumber
 
 @Composable
 fun ContactItem(contact: Contact) {
+
+
     Row(modifier = Modifier
         .fillMaxWidth()
 
         .padding(bottom = 20.dp)) {
 
+
+
        val phoneNumbers = contact.phoneNumbers.joinToString {
            it.number
        }
 
-        Log.e("contact","Contact: $contact")
-
+        
 
 
         val displayData = if(contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
@@ -57,7 +61,8 @@ fun ContactItem(contact: Contact) {
             Image(painter = painterResource(id = R.drawable.person_crop_circle_badge_exclamationmark),
                 contentDescription = "Incorrect contact",
 
-                modifier  = Modifier.width(50.dp)
+                modifier  = Modifier
+                    .width(50.dp)
                     .height(50.dp)
                     , contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(Color.Red)
