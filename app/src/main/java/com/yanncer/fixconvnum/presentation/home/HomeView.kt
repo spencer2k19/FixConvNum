@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -172,16 +174,20 @@ fun HomeView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(contentPadding)
-                .padding(horizontal = 20.dp)
+
 
         ) {
             Column(
 
             ) {
 
-                FilledTextField(text = state.query, onValueChange = {
-                    viewModel.onQueryChange(it)
-                }, placeHolder = "Rechercher un nom ou prénom")
+                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    FilledTextField(text = state.query, onValueChange = {
+                        viewModel.onQueryChange(it)
+                    }, placeHolder = "Rechercher un nom ou prénom")
+                }
+
+
 
 
                 // Spacer(modifier = Modifier.height(20.dp))
@@ -192,8 +198,11 @@ fun HomeView(
                 }
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
 
-                    items(state.contacts) { contact ->
+                    itemsIndexed(state.contacts) { index,contact ->
                         ContactItem(contact)
+//                        if (index < state.contacts.lastIndex) {
+//                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
+//                        }
                     }
                 }
 
@@ -201,7 +210,7 @@ fun HomeView(
 
             Box(
                 modifier = Modifier
-                    .padding(vertical = 20.dp)
+                    .padding(vertical = 20.dp, horizontal = 20.dp)
                     .background(color = Color.White)
                     .align(Alignment.BottomCenter)
 
