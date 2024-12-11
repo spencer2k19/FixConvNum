@@ -94,25 +94,28 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
     }
 
     override suspend fun updateContact(contact: Contact) {
-        //Get content resolver to update contacts
-        val contentResolver = context.contentResolver
-        val operations = arrayListOf<ContentProviderOperation>()
+        withContext(Dispatchers.IO) {
+            //Get content resolver to update contacts
+            val contentResolver = context.contentResolver
+            val operations = arrayListOf<ContentProviderOperation>()
 
-        contact.phoneNumbers.forEach { phoneNumber ->
-            operations.add(
-                ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                    .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                 //   .withValue(ContactsContract.CommonDataKinds.Phone.CONTACT_ID, contact.id)
-                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber.number)
-                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, phoneNumber.type)
-                    .build()
-            )
+            contact.phoneNumbers.forEach { phoneNumber ->
+                operations.add(
+                    ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
+                        .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        //   .withValue(ContactsContract.CommonDataKinds.Phone.CONTACT_ID, contact.id)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber.number)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, phoneNumber.type)
+                        .build()
+                )
+            }
+
+
+            //Execute update of operations
+            contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
         }
 
-
-        //Execute update of operations
-        contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
     }
 
     private fun fetchPhoneNumbers(contactId:Long): List<PhoneNumber> {

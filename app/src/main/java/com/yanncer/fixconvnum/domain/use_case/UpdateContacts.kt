@@ -5,6 +5,7 @@ import com.yanncer.fixconvnum.common.BeninPhoneValidator.isExtendedNumber
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.isLocalNumber
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.lastEightDigits
 import com.yanncer.fixconvnum.common.Resource
+import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
 import com.yanncer.fixconvnum.domain.repository.ContactsRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,7 @@ import javax.inject.Inject
 class UpdateContacts @Inject constructor(
     private val repository: ContactsRepository
 ) {
-     operator fun invoke(): Flow<Resource<Unit>> {
+     operator fun invoke(): Flow<Resource<List<Contact>>> {
         return  flow {
              try {
                  emit(Resource.Loading())
@@ -70,8 +71,9 @@ class UpdateContacts @Inject constructor(
                          }
                      }
                  }
+                 val allUpdated = repository.fetchContacts()
 
-                 emit(Resource.Success(Unit))
+                 emit(Resource.Success(allUpdated))
              } catch (e: Exception) {
                  emit(Resource.Error(e.message ?: ""))
              }

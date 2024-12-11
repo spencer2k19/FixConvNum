@@ -45,8 +45,7 @@ class HomeViewModel @Inject constructor(
                     _state.value = state.value.copy(isLoading = false)
                 }
                 is Resource.Success -> {
-                    _state.value = state.value.copy(isLoading = false)
-                    fetchContacts()
+                    _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList())
                     _eventFlow.emit(UIEvent.ShowSnackbar(message ="Vos contacts ont été corrigé avec succès"))
                 }
             }
