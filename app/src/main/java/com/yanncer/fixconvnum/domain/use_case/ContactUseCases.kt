@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.domain.use_case
 data class ContactUseCases(
     val getContacts: GetContacts,
     val fixContacts: FixContacts,
-    val removeContacts: RemoveContact,
+    val removeContact: RemoveContact,
+    val removeContacts: RemoveContacts,
     val updateContacts: UpdateContacts
 )

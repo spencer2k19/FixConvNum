@@ -296,7 +296,9 @@ fun HomeView(
             ) {
                 if (state.selectionMode) {
                     Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()){
-                       TextButton(onClick = {  }, enabled = state.contactsSelected.isNotEmpty() ) {
+                       TextButton(onClick = {
+                                            viewModel.removeContacts()
+                       }, enabled = state.contactsSelected.isNotEmpty() ) {
                            Text(text = "Ignorer", style = MaterialTheme.typography.bodyLarge.copy(
                                color = if (state.contactsSelected.isEmpty()) Color.Gray else Color.Red,
                                fontWeight = FontWeight.Bold

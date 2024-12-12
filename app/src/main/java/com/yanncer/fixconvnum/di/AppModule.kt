@@ -7,6 +7,7 @@ import com.yanncer.fixconvnum.domain.use_case.ContactUseCases
 import com.yanncer.fixconvnum.domain.use_case.FixContacts
 import com.yanncer.fixconvnum.domain.use_case.GetContacts
 import com.yanncer.fixconvnum.domain.use_case.RemoveContact
+import com.yanncer.fixconvnum.domain.use_case.RemoveContacts
 import com.yanncer.fixconvnum.domain.use_case.UpdateContacts
 import dagger.Module
 import dagger.Provides
@@ -31,7 +32,8 @@ object AppModule {
         return ContactUseCases(
             getContacts = GetContacts(repository),
             fixContacts = FixContacts(repository),
-            removeContacts = RemoveContact(repository),
+            removeContact = RemoveContact(repository),
+            removeContacts = RemoveContacts(repository),
             updateContacts = UpdateContacts(repository)
         )
     }

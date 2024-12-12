@@ -74,9 +74,41 @@ class HomeViewModel @Inject constructor(
                         _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList(), selectionMode = false, contactsSelected = emptyList())
                         _eventFlow.emit(UIEvent.ShowSnackbar(message ="Les contacts sélectionnés  ont été corrigé avec succès ✅"))
                     }
+                    else -> {}
                 }
             }.launchIn(viewModelScope)
         }
+    }
+
+    fun removeContacts() {
+        if (state.value.contactsSelected.isNotEmpty()) {
+
+                useCases.removeContacts(state.value.contactsSelected.map { it.id },state.value.contacts).onEach {result ->
+                    when(result) {
+
+                        is Resource.Loading -> {
+                            _state.value =  state.value.copy(isLoading = true, selectionMode = false)
+                        }
+                        is Resource.Error -> {
+                            _state.value = state.value.copy(isLoading = false, selectionMode = true)
+                            _eventFlow.emit(UIEvent.ShowSnackbar(message = result.message?:"Une erreur s'est produite. Veuillez réessayer ultérieurement"))
+                        }
+
+                        is Resource.Success -> {
+                            _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList(), selectionMode = false, contactsSelected = emptyList())
+                            _eventFlow.emit(UIEvent.ShowSnackbar(message ="Les contacts sélectionnés  ont été retiré avec succès ✅"))
+                        }
+
+                        else -> {
+
+                        }
+                    }
+
+                }.launchIn(viewModelScope)
+
+
+        }
+
     }
 
 
@@ -100,6 +132,7 @@ class HomeViewModel @Inject constructor(
 
                     _eventFlow.emit(UIEvent.ShowSnackbar(message ="Le contact ${getDisplayContentOfContact(contact)} a été corrigé avec succès ✅"))
                 }
+                else -> {}
             }
         }.launchIn(viewModelScope)
     }
@@ -124,10 +157,14 @@ class HomeViewModel @Inject constructor(
         _state.value = state.value.copy(contactsSelected = updatedContacts)
     }
 
+
+
+
+
     fun removeContact() {
         state.value.contact?.let {
             Log.e("contact","Contact to be removed: $it")
-            useCases.removeContacts(it,state.value.contacts).onEach {result ->
+            useCases.removeContact(it,state.value.contacts).onEach {result ->
                 when(result) {
                     is Resource.Error -> {
                         _state.value = state.value.copy(contact = null)
@@ -166,6 +203,7 @@ class HomeViewModel @Inject constructor(
                     _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList())
                     _eventFlow.emit(UIEvent.ShowSnackbar(message ="Vos contacts ont été corrigé avec succès"))
                 }
+                else -> {}
             }
 
         }.launchIn(viewModelScope)

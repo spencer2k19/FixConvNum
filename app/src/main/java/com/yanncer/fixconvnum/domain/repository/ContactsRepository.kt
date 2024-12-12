@@ -6,4 +6,5 @@ interface ContactsRepository {
     suspend fun fetchContacts(): List<Contact>
     suspend fun updateContact(contact: Contact)
     suspend fun removeContact(contactId: Long, contacts: List<Contact>): List<Contact>
+    suspend fun removeContacts(contactIds: List<Long>, contacts: List<Contact>): List<Contact>
 }

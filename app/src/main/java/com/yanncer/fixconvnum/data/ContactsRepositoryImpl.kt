@@ -125,6 +125,15 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
       }
     }
 
+    override suspend fun removeContacts(
+        contactIds: List<Long>,
+        contacts: List<Contact>
+    ): List<Contact> {
+        return contacts.filter { contact ->
+            contact.id !in contactIds
+        }
+    }
+
     private fun fetchPhoneNumbers(contactId:Long): List<PhoneNumber> {
         val phoneNumbers = mutableListOf<PhoneNumber>()
 
