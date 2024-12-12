@@ -296,7 +296,7 @@ fun HomeView(
             ) {
                 if (state.selectionMode) {
                     Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()){
-                       TextButton(onClick = {  }, enabled = state.contactsSelected.isEmpty() ) {
+                       TextButton(onClick = {  }, enabled = state.contactsSelected.isNotEmpty() ) {
                            Text(text = "Ignorer", style = MaterialTheme.typography.bodyLarge.copy(
                                color = if (state.contactsSelected.isEmpty()) Color.Gray else Color.Red,
                                fontWeight = FontWeight.Bold
@@ -304,11 +304,14 @@ fun HomeView(
                        }
 
 
-                     Button(onClick = { }, colors = ButtonDefaults.buttonColors(
-                         containerColor = Color.White.copy(alpha = 0.7f)
+                     Button(onClick = {
+                                      viewModel.fixSomeContacts()
+                     }, colors = ButtonDefaults.buttonColors(
+                         containerColor = Color.White.copy(alpha = 0.4f)
                      ), enabled = state.contactsSelected.isNotEmpty()) {
                          Text(text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
-                             color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor
+                             color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor,
+                             fontWeight = FontWeight.Bold
                          ))
                      }
 

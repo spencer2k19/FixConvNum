@@ -51,11 +51,36 @@ class HomeViewModel @Inject constructor(
         _showRemoveDialogState.value = false
     }
 
-    fun getDisplayContentOfContact(contact: Contact): String {
+    private fun getDisplayContentOfContact(contact: Contact): String {
         return  if (contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
             "${contact.firstName} ${contact.lastName}"
         } else contact.displayName
     }
+
+
+    fun fixSomeContacts() {
+        if (state.value.contactsSelected.isNotEmpty()) {
+
+            useCases.fixContacts(state.value.contactsSelected).onEach {result ->
+                when(result) {
+                    is Resource.Loading -> {
+                        _state.value =  state.value.copy(isLoading = true, selectionMode = false)
+                    }
+                    is Resource.Error -> {
+                        _eventFlow.emit(UIEvent.ShowSnackbar(message = result.message?:"Une erreur s'est produite. Veuillez réessayer ultérieurement"))
+                        _state.value = state.value.copy(isLoading = false, selectionMode = true)
+                    }
+                    is Resource.Success -> {
+                        _state.value = state.value.copy(isLoading = false, contacts = result.data ?: emptyList(), selectionMode = false, contactsSelected = emptyList())
+                        _eventFlow.emit(UIEvent.ShowSnackbar(message ="Les contacts sélectionnés  ont été corrigé avec succès ✅"))
+                    }
+                }
+            }.launchIn(viewModelScope)
+        }
+    }
+
+
+
 
     fun fixOneContact(contact: Contact) {
         useCases.fixContacts(listOf(contact)).onEach {result ->
