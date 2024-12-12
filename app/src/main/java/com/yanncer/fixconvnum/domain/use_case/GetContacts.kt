@@ -14,12 +14,10 @@ class GetContacts @Inject constructor(
      operator fun invoke(limit: Int, offset: Int,searchQuery: String): Flow<Resource<List<Contact>>> {
         return flow {
             try {
-                Log.e("contact","Try fetching contacts with searchQuery: $searchQuery")
                 emit(Resource.Loading())
                 val contacts = repository.fetchContacts(limit, offset,searchQuery)
                 emit(Resource.Success(contacts))
             }catch (e: Exception) {
-                Log.e("contact","Contacts exception: ${e.localizedMessage}")
                 emit(Resource.Error(e.message ?: ""))
             }
         }

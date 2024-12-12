@@ -230,7 +230,7 @@ class HomeViewModel @Inject constructor(
 
 
 
-     fun fetchContacts(searchQuery: String = "") {
+     fun fetchContacts() {
         useCases.getContacts(limit = 50, offset = 0,state.value.query).onEach {result ->
             when(result) {
                 is Resource.Loading -> {
@@ -240,7 +240,7 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     _state.value = _state.value.copy(contacts = result.data ?: emptyList(), isLoading = false)
                     if (state.value.query.isEmpty()) {
-                        fetchRemainingContacts(searchQuery)
+                        fetchRemainingContacts()
                     }
 
                 }
@@ -255,7 +255,7 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun fetchRemainingContacts(searchQuery: String) {
+    private fun fetchRemainingContacts() {
         useCases.getContacts(limit = Int.MAX_VALUE, offset = 50,"").onEach {result ->
             when(result) {
 

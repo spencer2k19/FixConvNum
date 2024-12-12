@@ -6,7 +6,6 @@ import com.yanncer.fixconvnum.domain.repository.ContactsRepository
 import com.yanncer.fixconvnum.domain.use_case.ContactUseCases
 import com.yanncer.fixconvnum.domain.use_case.FixContacts
 import com.yanncer.fixconvnum.domain.use_case.GetContacts
-import com.yanncer.fixconvnum.domain.use_case.GetPagingContacts
 import com.yanncer.fixconvnum.domain.use_case.RemoveContact
 import com.yanncer.fixconvnum.domain.use_case.RemoveContacts
 import com.yanncer.fixconvnum.domain.use_case.UpdateContacts
@@ -35,8 +34,7 @@ object AppModule {
             fixContacts = FixContacts(repository),
             removeContact = RemoveContact(repository),
             removeContacts = RemoveContacts(repository),
-            updateContacts = UpdateContacts(repository),
-            getPagingContacts = GetPagingContacts(repository)
+            updateContacts = UpdateContacts(repository)
         )
     }
 }

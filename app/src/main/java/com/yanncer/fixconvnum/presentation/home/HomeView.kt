@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.presentation.home
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -17,15 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
@@ -34,7 +31,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,8 +48,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,15 +62,12 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
 import com.yanncer.fixconvnum.presentation.components.CustomProgress
 import com.yanncer.fixconvnum.presentation.components.FilledTextField
 import com.yanncer.fixconvnum.presentation.infos.InfosView
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 
 @ExperimentalMaterial3Api
@@ -92,6 +83,7 @@ fun HomeView(
     var showBottomSheet by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
+
     val buttonContent = if (state.isLoading) {
         "Veuillez patienter..."
     } else if (viewModel.issueExistsInList()) {
@@ -101,7 +93,7 @@ fun HomeView(
     }
 
     val backgroundColor = if (state.isLoading) {
-        AccentColor.copy(alpha = 0.1f)
+        AccentColor.copy(alpha = 0.3f)
     } else if (viewModel.issueExistsInList()) {
         AccentColor
     } else {
@@ -122,11 +114,17 @@ fun HomeView(
     val context = LocalContext.current
 
     // Launcher for permission
+    var callableOnWritePermissionGranted = {}
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
+            Log.e("contact", "Permission is granted or not: $isGranted")
             permissionState = when {
-                isGranted -> PermissionState.Granted
+                isGranted -> {
+                    callableOnWritePermissionGranted()
+                    PermissionState.Granted
+                }
+
                 else -> PermissionState.Denied
             }
         }
@@ -144,6 +142,28 @@ fun HomeView(
         )
     }
 
+    val callableToShowPermissions = {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED -> callableOnWritePermissionGranted()
+
+            shouldShowRequestPermissionRationale(
+                context as Activity,
+                Manifest.permission.WRITE_CONTACTS
+            ) -> {
+                // show rational of permission
+                permissionState = PermissionState.Denied
+            }
+
+            else -> {
+                // ask for permission
+                permissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
+            }
+        }
+    }
+
 
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -158,8 +178,8 @@ fun HomeView(
                 is HomeViewModel.UIEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
-                else -> {}
 
+                else -> {}
 
 
             }
@@ -183,9 +203,11 @@ fun HomeView(
                 TextButton(onClick = {
                     viewModel.toggleSelectMode()
                 }) {
-                    Text(text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
-                        color = AccentColor
-                    ))
+                    Text(
+                        text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
+                            color = AccentColor
+                        )
+                    )
                 }
             } else {
                 IconButton(onClick = {
@@ -268,15 +290,13 @@ fun HomeView(
                         trailingIcon = {
                             if (state.query.isNotEmpty()) {
                                 IconButton(onClick = { viewModel.onQueryChange("") }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Search" )
+                                    Icon(Icons.Default.Close, contentDescription = "Search")
                                 }
                             }
                         }
-                        )
+                    )
                 }
 
-
-                // Spacer(modifier = Modifier.height(20.dp))
 
                 if (state.isLoading && state.contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
@@ -286,15 +306,17 @@ fun HomeView(
 
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
 
-                    itemsIndexed(state.contacts, key = {_: Int, item: Contact ->
+                    itemsIndexed(state.contacts, key = { _: Int, item: Contact ->
                         "${item.id} ${viewModel.getDisplayContentOfContact(item)}"
-                    }) { index,contact ->
+                    }) { index, contact ->
                         ContactItem(contact, onRemove = {
                             viewModel.showRemoveDialog(contact)
                         }, onFitContact = {
-                            viewModel.fixOneContact(contact)
-                        }, onSelect = {isChecked ->
-                            viewModel.toggleSelectionOfContact(contact,isChecked)
+                            callableOnWritePermissionGranted = { viewModel.fixOneContact(contact) }
+                            callableToShowPermissions()
+
+                        }, onSelect = { isChecked ->
+                            viewModel.toggleSelectionOfContact(contact, isChecked)
                         }, toggleSelectionMode = state.selectionMode,
                             select = viewModel.isContactSelected(contact.id)
                         )
@@ -315,55 +337,49 @@ fun HomeView(
 
             ) {
                 if (state.selectionMode) {
-                    Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()){
-                       TextButton(onClick = {
-                                            viewModel.removeContacts()
-                       }, enabled = state.contactsSelected.isNotEmpty() ) {
-                           Text(text = "Ignorer", style = MaterialTheme.typography.bodyLarge.copy(
-                               color = if (state.contactsSelected.isEmpty()) Color.Gray else Color.Red,
-                               fontWeight = FontWeight.Bold
-                           ))
-                       }
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(onClick = {
+                            viewModel.removeContacts()
+                        }, enabled = state.contactsSelected.isNotEmpty()) {
+                            Text(
+                                text = "Ignorer", style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = if (state.contactsSelected.isEmpty()) Color.Gray else Color.Red,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
 
 
-                     Button(onClick = {
-                                      viewModel.fixSomeContacts()
-                     }, colors = ButtonDefaults.buttonColors(
-                         containerColor = Color.White.copy(alpha = 0.4f)
-                     ), enabled = state.contactsSelected.isNotEmpty()) {
-                         Text(text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
-                             color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor,
-                             fontWeight = FontWeight.Bold
-                         ))
-                     }
+                        Button(
+                            onClick = {
+                                callableOnWritePermissionGranted = { viewModel.fixSomeContacts() }
+                                callableToShowPermissions()
+
+
+                            }, colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.4f)
+                            ), enabled = state.contactsSelected.isNotEmpty()
+                        ) {
+                            Text(
+                                text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
 
 
                     }
                 } else {
                     CustomFilledButton(
                         text = buttonContent,
+
                         onClick = {
-                            when {
-                                ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.WRITE_CONTACTS
-                                ) == PackageManager.PERMISSION_GRANTED -> {
-                                    viewModel.updateContacts()
-                                }
-
-                                shouldShowRequestPermissionRationale(
-                                    context as Activity,
-                                    Manifest.permission.WRITE_CONTACTS
-                                ) -> {
-                                    // show rational of permission
-                                    permissionState = PermissionState.Denied
-                                }
-
-                                else -> {
-                                    // ask for permission
-                                    permissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
-                                }
-                            }
+                            callableOnWritePermissionGranted = { viewModel.updateContacts() }
+                            callableToShowPermissions()
                         },
                         color = backgroundColor,
                         textColor = if (viewModel.issueExistsInList()) Color.White else AccentColor,
@@ -403,23 +419,27 @@ fun HomeView(
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                       viewModel.dismissRemoveDialog()
-                       viewModel.removeContact()
+                        viewModel.dismissRemoveDialog()
+                        viewModel.removeContact()
                     }) {
-                        Text(text = "Oui", style = MaterialTheme.typography.bodyMedium.copy(
-                            color = AccentColor,
-                            fontWeight = FontWeight.Bold
-                        ))
+                        Text(
+                            text = "Oui", style = MaterialTheme.typography.bodyMedium.copy(
+                                color = AccentColor,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = {
-                      viewModel.dismissRemoveDialog()
+                        viewModel.dismissRemoveDialog()
                     }) {
-                        Text(text = "Non",  style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
-                        ))
+                        Text(
+                            text = "Non", style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
                     }
                 }
             )

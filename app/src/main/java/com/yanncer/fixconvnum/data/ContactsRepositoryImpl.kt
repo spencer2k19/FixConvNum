@@ -3,29 +3,15 @@ package com.yanncer.fixconvnum.data
 import android.content.ContentProviderOperation
 import android.content.Context
 import android.provider.ContactsContract
-import android.util.Log
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import com.yanncer.fixconvnum.common.PrefSingleton
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
 import com.yanncer.fixconvnum.domain.repository.ContactsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
-    override fun getContactsPager(): Flow<PagingData<Contact>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = Int.MAX_VALUE,          // Nombre de contacts par page
-                enablePlaceholders = false,
-                initialLoadSize = Int.MAX_VALUE   // Premier chargement
-            ),
-            pagingSourceFactory = { ContactsPagingSource(context,this) }
-        ).flow
-    }
+
 
     override suspend fun fetchContacts(limit: Int, offset: Int, searchQuery: String):  List<Contact> = withContext(Dispatchers.IO) {
         val contacts = mutableListOf<Contact>()
@@ -38,8 +24,7 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
             ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
             ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME
         )
-        Log.e("contact","limit: $limit")
-        Log.e("contact","offset: $offset")
+
 
 
         // Request for structured name
@@ -100,12 +85,12 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
                 val id = cursor.getLong(idColumn)
                 val displayName = cursor.getString(displayNameColumn) ?: "Unknown"
 
-                // Récupération des noms structurés
+                // getting structured names
                 val (firstName, lastName) = contactNames[id] ?: Pair("", "")
 
                 val phoneNumbers = fetchPhoneNumbers(id)
 
-                // Filtrage supplémentaire si nécessaire
+                // filtering if necessary
                 if (phoneNumbers.isNotEmpty() && !PrefSingleton.getBool(id.toString())) {
                     contacts.add(
                         Contact(

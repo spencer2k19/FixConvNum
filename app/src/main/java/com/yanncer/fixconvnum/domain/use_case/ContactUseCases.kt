@@ -6,5 +6,4 @@ data class ContactUseCases(
     val removeContact: RemoveContact,
     val removeContacts: RemoveContacts,
     val updateContacts: UpdateContacts,
-    val getPagingContacts: GetPagingContacts
 )
