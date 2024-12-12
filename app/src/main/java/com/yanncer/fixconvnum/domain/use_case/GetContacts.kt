@@ -1,5 +1,6 @@
 package com.yanncer.fixconvnum.domain.use_case
 
+import android.util.Log
 import com.yanncer.fixconvnum.common.Resource
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.repository.ContactsRepository
@@ -10,13 +11,15 @@ import javax.inject.Inject
 class GetContacts @Inject constructor(
     private val repository: ContactsRepository
 ) {
-     operator fun invoke(): Flow<Resource<List<Contact>>> {
+     operator fun invoke(limit: Int, offset: Int,searchQuery: String): Flow<Resource<List<Contact>>> {
         return flow {
             try {
+                Log.e("contact","Try fetching contacts with searchQuery: $searchQuery")
                 emit(Resource.Loading())
-                val contacts = repository.fetchContacts()
+                val contacts = repository.fetchContacts(limit, offset,searchQuery)
                 emit(Resource.Success(contacts))
             }catch (e: Exception) {
+                Log.e("contact","Contacts exception: ${e.localizedMessage}")
                 emit(Resource.Error(e.message ?: ""))
             }
         }

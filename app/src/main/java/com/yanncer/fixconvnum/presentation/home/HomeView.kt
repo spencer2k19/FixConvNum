@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
@@ -51,6 +53,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,12 +68,15 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
 import com.yanncer.fixconvnum.presentation.components.CustomProgress
 import com.yanncer.fixconvnum.presentation.components.FilledTextField
 import com.yanncer.fixconvnum.presentation.infos.InfosView
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 
 @ExperimentalMaterial3Api
@@ -145,11 +151,14 @@ fun HomeView(
 
 
     LaunchedEffect(key1 = true) {
+
+
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is HomeViewModel.UIEvent.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
+                else -> {}
 
 
 
@@ -254,7 +263,16 @@ fun HomeView(
                 Box(modifier = Modifier.padding(horizontal = 20.dp)) {
                     FilledTextField(text = state.query, onValueChange = {
                         viewModel.onQueryChange(it)
-                    }, placeHolder = "Rechercher un nom ou prénom")
+
+                    }, placeHolder = "Rechercher un nom ou prénom",
+                        trailingIcon = {
+                            if (state.query.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.onQueryChange("") }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Search" )
+                                }
+                            }
+                        }
+                        )
                 }
 
 
@@ -264,20 +282,22 @@ fun HomeView(
                     Spacer(modifier = Modifier.height(20.dp))
                     CustomProgress(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }
+
+
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
 
-                    itemsIndexed(state.contacts, key = {index: Int, item: Contact ->
-                        item.id
+                    itemsIndexed(state.contacts, key = {_: Int, item: Contact ->
+                        "${item.id} ${viewModel.getDisplayContentOfContact(item)}"
                     }) { index,contact ->
                         ContactItem(contact, onRemove = {
-                           viewModel.showRemoveDialog(contact)
+                            viewModel.showRemoveDialog(contact)
                         }, onFitContact = {
                             viewModel.fixOneContact(contact)
                         }, onSelect = {isChecked ->
                             viewModel.toggleSelectionOfContact(contact,isChecked)
                         }, toggleSelectionMode = state.selectionMode,
-                                select = viewModel.isContactSelected(contact.id)
-                            )
+                            select = viewModel.isContactSelected(contact.id)
+                        )
 //                        if (index < state.contacts.lastIndex) {
 //                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
 //                        }

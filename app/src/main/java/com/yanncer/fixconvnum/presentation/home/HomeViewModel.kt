@@ -5,13 +5,23 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
+import com.yanncer.fixconvnum.common.PrefSingleton
 import com.yanncer.fixconvnum.common.Resource
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.use_case.ContactUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -25,6 +35,8 @@ class HomeViewModel @Inject constructor(
     val state: State<HomeState> = _state
 
 
+
+
     private val _showRemoveDialogState = mutableStateOf(false)
     val showRemoveDialogState: State<Boolean> = _showRemoveDialogState
 
@@ -33,6 +45,11 @@ class HomeViewModel @Inject constructor(
 
     fun onQueryChange(value: String) {
         _state.value = state.value.copy(query = value)
+        viewModelScope.launch {
+            delay(1000)
+            fetchContacts()
+        }
+
     }
 
     fun issueExistsInList(): Boolean {
@@ -51,7 +68,7 @@ class HomeViewModel @Inject constructor(
         _showRemoveDialogState.value = false
     }
 
-    private fun getDisplayContentOfContact(contact: Contact): String {
+     fun getDisplayContentOfContact(contact: Contact): String {
         return  if (contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
             "${contact.firstName} ${contact.lastName}"
         } else contact.displayName
@@ -164,6 +181,7 @@ class HomeViewModel @Inject constructor(
     fun removeContact() {
         state.value.contact?.let {
             Log.e("contact","Contact to be removed: $it")
+
             useCases.removeContact(it,state.value.contacts).onEach {result ->
                 when(result) {
                     is Resource.Error -> {
@@ -209,15 +227,46 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-     fun fetchContacts() {
-        useCases.getContacts().onEach {result ->
+
+
+
+     fun fetchContacts(searchQuery: String = "") {
+        useCases.getContacts(limit = 50, offset = 0,state.value.query).onEach {result ->
             when(result) {
                 is Resource.Loading -> {
                     _state.value = _state.value.copy(isLoading = true)
                 }
 
                 is Resource.Success -> {
-                    _state.value = HomeState(contacts = result.data ?: emptyList())
+                    _state.value = _state.value.copy(contacts = result.data ?: emptyList(), isLoading = false)
+                    if (state.value.query.isEmpty()) {
+                        fetchRemainingContacts(searchQuery)
+                    }
+
+                }
+
+                is Resource.Error -> {
+                    _state.value = _state.value.copy(error = result.message ?: "", isLoading = false)
+                }
+                else -> {
+
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun fetchRemainingContacts(searchQuery: String) {
+        useCases.getContacts(limit = Int.MAX_VALUE, offset = 50,"").onEach {result ->
+            when(result) {
+
+                is Resource.Success -> {
+                    val currentContacts = _state.value.contacts.toMutableList()
+                    result.data?.let { newContacts ->
+                        currentContacts.addAll(newContacts)
+                    }
+                    _state.value = _state.value.copy(
+                        contacts = currentContacts
+                    )
                 }
 
                 is Resource.Error -> {

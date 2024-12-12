@@ -19,7 +19,7 @@ class UpdateContacts @Inject constructor(
         return  flow {
              try {
                  emit(Resource.Loading())
-                 val allContacts = repository.fetchContacts()
+                 val allContacts = repository.fetchContacts(searchQuery = "")
                  // filter only contacts that has issues
                  val contactsToUpdate = allContacts.filter { it.hasPhoneNumberIssue() }
 
@@ -71,7 +71,7 @@ class UpdateContacts @Inject constructor(
                          }
                      }
                  }
-                 val allUpdated = repository.fetchContacts()
+                 val allUpdated = repository.fetchContacts(searchQuery = "")
 
                  emit(Resource.Success(allUpdated))
              } catch (e: Exception) {

@@ -67,7 +67,7 @@ fun ContactItem(contact: Contact,
                 else -> false
             }
         },
-        positionalThreshold = { it * .25f }
+      //  positionalThreshold = { it * .25f }
     )
 
 

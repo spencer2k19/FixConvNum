@@ -68,7 +68,7 @@ class FixContacts @Inject constructor(
                         }
                     }
                 }
-                val allUpdated = repository.fetchContacts()
+                val allUpdated = repository.fetchContacts(searchQuery = "")
 
                 emit(Resource.Success(allUpdated))
             } catch (e: Exception) {
