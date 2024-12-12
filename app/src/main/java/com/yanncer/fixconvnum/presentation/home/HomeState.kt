@@ -6,5 +6,7 @@ data class HomeState(var query: String = "",
                      var isLoading: Boolean = false,
                      var contacts: List<Contact> = emptyList(),
                      var error: String = "",
-                    var contact: Contact? = null
+                    var contact: Contact? = null,
+                    var selectionMode: Boolean = false,
+                    var contactsSelected : List<Contact> = emptyList()
     )

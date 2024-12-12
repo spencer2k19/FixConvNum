@@ -79,6 +79,26 @@ class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun toggleSelectMode() {
+        _state.value = state.value.copy(
+            selectionMode = !state.value.selectionMode
+        )
+    }
+
+    fun isContactSelected(contactId: Long): Boolean {
+        return state.value.contactsSelected.any { it.id == contactId }
+    }
+
+    fun toggleSelectionOfContact(contact: Contact, isChecked: Boolean) {
+        val updatedContacts = state.value.contactsSelected.toMutableList()
+        if (isChecked) {
+            updatedContacts.add(contact)
+        } else {
+            updatedContacts.remove(contact)
+        }
+        _state.value = state.value.copy(contactsSelected = updatedContacts)
+    }
+
     fun removeContact() {
         state.value.contact?.let {
             Log.e("contact","Contact to be removed: $it")

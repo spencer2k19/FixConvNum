@@ -6,11 +6,14 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,9 +21,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -73,8 +83,8 @@ fun HomeView(
     val state = viewModel.state.value
     val showRemoveDialogState = viewModel.showRemoveDialogState.value
     val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     val buttonContent = if (state.isLoading) {
         "Veuillez patienter..."
@@ -159,15 +169,68 @@ fun HomeView(
                 )
             )
         }, actions = {
-            IconButton(onClick = {
-                showBottomSheet = true
 
-            }) {
-                Icon(Icons.Outlined.Info, contentDescription = "Information about app")
+            if (state.selectionMode) {
+                TextButton(onClick = {
+                    viewModel.toggleSelectMode()
+                }) {
+                    Text(text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
+                        color = AccentColor
+                    ))
+                }
+            } else {
+                IconButton(onClick = {
+                    showBottomSheet = true
+
+                }) {
+                    Icon(Icons.Outlined.Info, contentDescription = "Information about app")
+                }
+
+                IconButton(onClick = {
+                    expanded = true
+                }) {
+                    Icon(Icons.Outlined.MoreVert, contentDescription = "More")
+                }
             }
 
-            IconButton(onClick = { }) {
-                Icon(Icons.Outlined.MoreVert, contentDescription = "More")
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                containerColor = Color.White
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        // Action pour "Sélectionner"
+                        viewModel.toggleSelectMode()
+                        expanded = false
+                    },
+                    text = {
+                        Text("Sélectionner")
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null
+                        )
+                    }
+                )
+//                HorizontalDivider()
+//                DropdownMenuItem(
+//                    onClick = {
+//                        // Action pour "Paramètres"
+//                        expanded = false
+//                    },
+//                    text = {
+//                        Text("Paramètres")
+//                    },
+//                    leadingIcon = {
+//                        Icon(
+//                            imageVector = Icons.Filled.Person,
+//                            contentDescription = null
+//                        )
+//                    }
+//                )
             }
         }, colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.White
@@ -210,7 +273,11 @@ fun HomeView(
                            viewModel.showRemoveDialog(contact)
                         }, onFitContact = {
                             viewModel.fixOneContact(contact)
-                        })
+                        }, onSelect = {isChecked ->
+                            viewModel.toggleSelectionOfContact(contact,isChecked)
+                        }, toggleSelectionMode = state.selectionMode,
+                                select = viewModel.isContactSelected(contact.id)
+                            )
 //                        if (index < state.contacts.lastIndex) {
 //                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
 //                        }
@@ -227,34 +294,57 @@ fun HomeView(
 
 
             ) {
-                CustomFilledButton(
-                    text = buttonContent,
-                    onClick = {
-                        when {
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.WRITE_CONTACTS
-                            ) == PackageManager.PERMISSION_GRANTED -> {
-                                viewModel.updateContacts()
-                            }
+                if (state.selectionMode) {
+                    Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()){
+                       TextButton(onClick = {  }, enabled = state.contactsSelected.isEmpty() ) {
+                           Text(text = "Ignorer", style = MaterialTheme.typography.bodyLarge.copy(
+                               color = if (state.contactsSelected.isEmpty()) Color.Gray else Color.Red,
+                               fontWeight = FontWeight.Bold
+                           ))
+                       }
 
-                            shouldShowRequestPermissionRationale(
-                                context as Activity,
-                                Manifest.permission.WRITE_CONTACTS
-                            ) -> {
-                                // show rational of permission
-                                permissionState = PermissionState.Denied
-                            }
 
-                            else -> {
-                                // ask for permission
-                                permissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
+                     Button(onClick = { }, colors = ButtonDefaults.buttonColors(
+                         containerColor = Color.White.copy(alpha = 0.7f)
+                     ), enabled = state.contactsSelected.isNotEmpty()) {
+                         Text(text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
+                             color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor
+                         ))
+                     }
+
+
+                    }
+                } else {
+                    CustomFilledButton(
+                        text = buttonContent,
+                        onClick = {
+                            when {
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.WRITE_CONTACTS
+                                ) == PackageManager.PERMISSION_GRANTED -> {
+                                    viewModel.updateContacts()
+                                }
+
+                                shouldShowRequestPermissionRationale(
+                                    context as Activity,
+                                    Manifest.permission.WRITE_CONTACTS
+                                ) -> {
+                                    // show rational of permission
+                                    permissionState = PermissionState.Denied
+                                }
+
+                                else -> {
+                                    // ask for permission
+                                    permissionLauncher.launch(Manifest.permission.WRITE_CONTACTS)
+                                }
                             }
-                        }
-                    },
-                    color = backgroundColor,
-                    textColor = if (viewModel.issueExistsInList()) Color.White else AccentColor,
-                )
+                        },
+                        color = backgroundColor,
+                        textColor = if (viewModel.issueExistsInList()) Color.White else AccentColor,
+                    )
+                }
+
 
             }
 

@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +29,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -45,7 +48,10 @@ import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
 @Composable
 fun ContactItem(contact: Contact,
         onRemove: () -> Unit,
-                onFitContact: () -> Unit
+        onFitContact: () -> Unit,
+        toggleSelectionMode: Boolean = false,
+                select: Boolean = false,
+       onSelect:(value: Boolean)-> Unit = {}
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
@@ -171,6 +177,7 @@ fun ContactItem(contact: Contact,
 
             Spacer(modifier = Modifier.width(10.dp))
             Column(horizontalAlignment = Alignment.Start) {
+
                 if (contact.firstName.isEmpty() || contact.lastName.isEmpty()) {
                     Text(
                         text = contact.displayName, style = TextStyle(
@@ -202,6 +209,18 @@ fun ContactItem(contact: Contact,
                     ), modifier = Modifier.padding(end = 10.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            if (toggleSelectionMode) {
+                Checkbox(checked = select, onCheckedChange = {
+                    onSelect(it)
+                }, colors = CheckboxDefaults.colors(
+                    checkedColor = AccentColor
+                ), )
+            }
+
+
         }
 
 
