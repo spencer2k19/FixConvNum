@@ -317,7 +317,7 @@ fun HomeView(
                         trailingIcon = {
                             if (state.query.isNotEmpty()) {
                                 IconButton(onClick = { viewModel.onQueryChange("") }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Search")
+                                    Icon(Icons.Default.Close, contentDescription = "Search", tint = Color.Black)
                                 }
                             }
                         }
@@ -337,8 +337,6 @@ fun HomeView(
                                 text = "Tout", style = MaterialTheme.typography.bodyMedium
                             )
                         },
-
-
 
 
                         colors = FilterChipDefaults.filterChipColors(
@@ -371,16 +369,14 @@ fun HomeView(
                         },
 
 
-
-
                         colors = FilterChipDefaults.filterChipColors(
                             containerColor =  if (isSystemInDarkTheme()) Color(0xFF1c1c20) else schemeButtonColor.copy(alpha = 0.05f),
                             selectedContainerColor = schemeButtonColor.copy(alpha = 0.8f),
                             labelColor = if (isSystemInDarkTheme()) Color.White else  Color.Black,
                             selectedLabelColor = Color.White
 
-
                         ),
+
                         shape = CircleShape,
 
 

@@ -7,13 +7,17 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -26,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -48,81 +53,86 @@ fun FilledTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     obscureText: Boolean = false,
     isError: Boolean = false,
-    errorMsg: String = ""
+    errorMsg: String = "",
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
 ) {
     Column {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .background(
-                    color = if (isSystemInDarkTheme()) Color(0xFF1c1c20) else Color.Black.copy(alpha = 0.05f),
-                    shape = CircleShape
-                ),
-            value = text,
-            onValueChange = onValueChange,
-            textStyle = TextStyle(
-                color = Color.Black
-            ),
-
-
-            isError = isError,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = if (obscureText) PasswordVisualTransformation() else VisualTransformation.None,
-            placeholder = {
-                Text(
-                    text = placeHolder,
-                    color = if (isSystemInDarkTheme()) Color.White else Color.Black.copy(alpha = 0.4f),
-                    modifier = Modifier.padding(
-                        start = 5.dp
-                    ),
-                    fontSize = 14.sp,
-
-                    fontWeight = FontWeight.W400
-
-                )
-            },
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-
-            colors =  TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,  // Fond quand le champ est activé
-                unfocusedContainerColor = Color.Transparent,  // Fond quand le champ est désactivé
-                disabledContainerColor = Color.Transparent,  // Fond quand le champ est désactivé
-                errorContainerColor = Color.Transparent,     // Fond en cas d'erreur
-
-                focusedIndicatorColor = Color.Transparent,   // Couleur de la bordure activée
-                unfocusedIndicatorColor = Color.Transparent, // Couleur de la bordure désactivée
-                disabledIndicatorColor = Color.Transparent,  // Couleur de la bordure désactivée
-                errorIndicatorColor = Color.Transparent // Bordure rouge en cas d'erreur
-            ),
-
-//            colors = TextFieldDefaults.outlinedTextFieldColors(
-//                textColor = Color.Black,
-//
-//                unfocusedLabelColor = Color.Transparent,
-//                focusedBorderColor = Color.Transparent, // Couleur du bord lorsqu'il est activé
-//                unfocusedBorderColor = Color.Transparent, // Couleur du bord lorsqu'il est désactivé
-//                errorBorderColor = Color.Transparent,
-//                disabledBorderColor = Color.Transparent,
-//
-//
-//
-//            ),
-
-
-
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = if (isSystemInDarkTheme()) Color(0xFF1c1c20) else Color.Black.copy(alpha = 0.05f),
+                shape = CircleShape
             )
+            .padding(horizontal = 16.dp)
+            .height(45.dp),
+            contentAlignment = Alignment.Center
 
-//        if(isError) {
-//            Text(text = errorMsg, fontSize = 14.sp,
-//
-//                fontWeight = FontWeight.W400, color = MaterialTheme.colorScheme.error,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(start = 10.dp, top = 5.dp))
-//
-//        }
+
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (leadingIcon != null) {
+                    Box(modifier = Modifier.padding(end = 8.dp)) {
+                        leadingIcon()
+                    }
+                }
+                BasicTextField(
+                    value = text,
+                    onValueChange = onValueChange,
+
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = if (leadingIcon != null) 0.dp else 8.dp, top = 4.dp, bottom = 4.dp),
+                    singleLine = true,
+
+
+                    //                modifier = Modifier
+                    //                    .fillMaxWidth()
+                    //                    .height(50.dp)
+                    //                    .background(
+                    //                        color = if (isSystemInDarkTheme()) Color(0xFF1c1c20) else Color.Black.copy(
+                    //                            alpha = 0.05f
+                    //                        ),
+                    //                        shape = CircleShape
+                    //                    ),
+                    textStyle = TextStyle(
+                        color = Color.Black
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    visualTransformation = if (obscureText) PasswordVisualTransformation() else VisualTransformation.None,
+
+
+
+                    ) { innerTextField ->
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        // Placeholder
+                        if (text.isEmpty()) {
+                            Text(
+                                text = placeHolder,
+                                color = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.5f) else Color.Black.copy(
+                                    alpha = 0.4f
+                                ),
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(start = 2.dp) // Espacement du placeholder
+                            )
+                        }
+
+                        innerTextField()
+
+                    }
+                }
+
+                if (trailingIcon != null) {
+                    Box(modifier = Modifier.padding(start = 8.dp)) {
+                        trailingIcon()
+                    }
+                }
+            }
+        }
+
+
 
     }
 }
