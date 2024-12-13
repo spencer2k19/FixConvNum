@@ -164,13 +164,18 @@ class HomeViewModel @Inject constructor(
         return state.value.contactsSelected.any { it.id == contactId }
     }
 
-    fun toggleSelectionOfContact(contact: Contact, isChecked: Boolean) {
+    fun toggleSelectionOfContact(contact: Contact) {
         val updatedContacts = state.value.contactsSelected.toMutableList()
-        if (isChecked) {
-            updatedContacts.add(contact)
-        } else {
+        if (isContactSelected(contact.id)) {
             updatedContacts.remove(contact)
+        } else {
+            updatedContacts.add(contact)
         }
+//        if (isChecked) {
+//            updatedContacts.add(contact)
+//        } else {
+//            updatedContacts.remove(contact)
+//        }
         _state.value = state.value.copy(contactsSelected = updatedContacts)
     }
 

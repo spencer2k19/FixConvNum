@@ -52,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -322,10 +323,10 @@ fun HomeView(
                             callableOnWritePermissionGranted = { viewModel.fixOneContact(contact) }
                             callableToShowPermissions()
 
-                        }, onSelect = { isChecked ->
-                            viewModel.toggleSelectionOfContact(contact, isChecked)
+                        }, onToggleSelect = {
+                            viewModel.toggleSelectionOfContact(contact)
                         }, toggleSelectionMode = state.selectionMode,
-                            select = viewModel.isContactSelected(contact.id)
+                            isSelect = viewModel.isContactSelected(contact.id)
                         )
 //                        if (index < state.contacts.lastIndex) {
 //                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
@@ -337,9 +338,15 @@ fun HomeView(
 
             Box(
                 modifier = Modifier
-                    .padding(vertical = 20.dp, horizontal = 20.dp)
+
+                    .padding(horizontal = 20.dp)
                     .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
+
                     .align(Alignment.BottomCenter)
+
+                    .padding(bottom = 20.dp)
+                  //  .shadow(5.dp)
+
 
 
             ) {

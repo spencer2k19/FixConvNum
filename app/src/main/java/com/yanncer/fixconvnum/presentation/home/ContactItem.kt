@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.presentation.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,46 +46,59 @@ import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
+import com.yanncer.fixconvnum.presentation.ui.theme.AccentDarkColor
 
 @Composable
-fun ContactItem(contact: Contact,
-        onRemove: () -> Unit,
-        onFitContact: () -> Unit,
-        toggleSelectionMode: Boolean = false,
-                select: Boolean = false,
-       onSelect:(value: Boolean)-> Unit = {}
+fun ContactItem(
+    contact: Contact,
+    onRemove: () -> Unit,
+    onFitContact: () -> Unit,
+    toggleSelectionMode: Boolean = false,
+    isSelect: Boolean = false,
+    onToggleSelect: () -> Unit = {}
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            when(it) {
+            when (it) {
                 SwipeToDismissBoxValue.EndToStart -> {
                     onFitContact()
                     false
                 }
+
                 SwipeToDismissBoxValue.StartToEnd -> {
                     onRemove()
                     false
                 }
+
                 else -> false
             }
         },
-      //  positionalThreshold = { it * .25f }
+        //  positionalThreshold = { it * .25f }
     )
+
+    val colorCheckbox = when (isSystemInDarkTheme()) {
+        true -> {
+            if (isSelect) AccentDarkColor else Color.White
+        }
+
+        else -> {
+            if (isSelect) AccentColor else Color.Black
+        }
+    }
 
 
     SwipeToDismissBox(state = dismissState,
-            enableDismissFromEndToStart = contact.hasPhoneNumberIssue()
-        ,backgroundContent = {
-        val color = when (dismissState.dismissDirection) {
-            SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFFA500)
-            SwipeToDismissBoxValue.EndToStart -> AccentColor
+        enableDismissFromEndToStart = contact.hasPhoneNumberIssue(), backgroundContent = {
+            val color = when (dismissState.dismissDirection) {
+                SwipeToDismissBoxValue.StartToEnd -> Color(0xFFFFA500)
+                SwipeToDismissBoxValue.EndToStart -> AccentColor
 
-            else -> Color.Transparent
-        }
+                else -> Color.Transparent
+            }
 
             val alignment = when (dismissState.dismissDirection) {
                 SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                SwipeToDismissBoxValue.EndToStart-> Alignment.CenterEnd
+                SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
                 else -> Alignment.Center
             }
 
@@ -94,141 +108,144 @@ fun ContactItem(contact: Contact,
                 else -> null
             }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color)
 
-                .padding(horizontal = 20.dp)
+                    .padding(horizontal = 20.dp)
+                    .clickable {
+                        onToggleSelect()
+                    },
+                contentAlignment = alignment
+            ) {
 
-
-            ,
-            contentAlignment = alignment
-        ) {
-
-            if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
-                icon?.let {
-                    Icon(
-                        painterResource(id = R.drawable.archivebox_fill),
-                        contentDescription = "",
-                        tint = Color.White
-                    )
-                }
-            } else {
-                Text(text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                ))
-            }
-
-
-        }
-    } ) {
-
-        Row(
-
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(if (isSystemInDarkTheme()) Color.Black else Color.White)
-                .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val phoneNumbers = contact.phoneNumbers.joinToString {
-                it.number
-            }
-            val displayData =
-                if (contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
-                    "${contact.firstName[0]}${contact.lastName[0]}"
-                } else if (contact.displayName.isNotEmpty()) {
-                    contact.displayName[0].toString()
-                } else {
-                    "Ic"
-                }
-
-            if (contact.hasPhoneNumberIssue()) {
-                Image(
-                    painter = painterResource(id = R.drawable.person_crop_circle_badge_exclamationmark),
-                    contentDescription = "Incorrect contact",
-
-                    modifier = Modifier
-                        .width(50.dp)
-                        .height(50.dp), contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(Color.Red)
-
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .width(50.dp)
-                        .height(50.dp)
-                        .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
-
-                ) {
-                    Text(
-                        text = displayData, style = TextStyle(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-
-                        ), modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-
-
-
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(horizontalAlignment = Alignment.Start) {
-
-                if (contact.firstName.isEmpty() || contact.lastName.isEmpty()) {
-                    Text(
-                        text = contact.displayName, style = TextStyle(
-                            fontWeight = FontWeight.W400
+                if (dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
+                    icon?.let {
+                        Icon(
+                            painterResource(id = R.drawable.archivebox_fill),
+                            contentDescription = "",
+                            tint = Color.White
                         )
+                    }
+                } else {
+                    Text(
+                        text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+
+
+            }
+        }) {
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (isSystemInDarkTheme()) Color.Black else Color.White)
+                    .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val phoneNumbers = contact.phoneNumbers.joinToString {
+                    it.number
+                }
+                val displayData =
+                    if (contact.firstName.isNotEmpty() && contact.lastName.isNotEmpty()) {
+                        "${contact.firstName[0]}${contact.lastName[0]}"
+                    } else if (contact.displayName.isNotEmpty()) {
+                        contact.displayName[0].toString()
+                    } else {
+                        "Ic"
+                    }
+
+                if (contact.hasPhoneNumberIssue()) {
+                    Image(
+                        painter = painterResource(id = R.drawable.person_crop_circle_badge_exclamationmark),
+                        contentDescription = "Incorrect contact",
+
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp), contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.tint(Color.Red)
+
                     )
                 } else {
-                    Row {
-                        Text(
-                            text = contact.firstName, style = TextStyle(
-                                fontWeight = FontWeight.W400
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = contact.lastName, style = TextStyle(
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
 
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
+                    ) {
+                        Text(
+                            text = displayData, style = TextStyle(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp,
 
+                                ), modifier = Modifier.align(Alignment.Center)
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = phoneNumbers, style = TextStyle(
-                        lineHeight = 20.sp
-                    ), modifier = Modifier.padding(end = 10.dp)
-                )
-            }
 
-            Spacer(modifier = Modifier.weight(1f))
+
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(horizontalAlignment = Alignment.Start) {
+
+                    if (contact.firstName.isEmpty() || contact.lastName.isEmpty()) {
+                        Text(
+                            text = contact.displayName, style = TextStyle(
+                                fontWeight = FontWeight.W400
+                            )
+                        )
+                    } else {
+                        Row {
+                            Text(
+                                text = contact.firstName, style = TextStyle(
+                                    fontWeight = FontWeight.W400
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = contact.lastName, style = TextStyle(
+
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = phoneNumbers, style = TextStyle(
+                            lineHeight = 20.sp
+                        ), modifier = Modifier.padding(end = 10.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+            }
 
             if (toggleSelectionMode) {
-                Checkbox(
-                    checked = select,
-                    onCheckedChange = {
-                        onSelect(it)
-                    },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = AccentColor,
-                        checkmarkColor = Color.White
-                    ),
+
+                Icon(
+                    painter = painterResource(id = if (isSelect) R.drawable.baseline_check_circle_24 else R.drawable.baseline_check_circle_outline_24),
+                    contentDescription = "",
+
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 20.dp),
+                    tint = colorCheckbox
+
                 )
+//
             }
-
-
         }
-
 
 
     }
@@ -237,29 +254,16 @@ fun ContactItem(contact: Contact,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Preview
 @Composable
 fun PrevContactItem() {
-    val contact = Contact(1L,"Dupont","Dupont", "Dupont Dupont", listOf(
-        PhoneNumber("+22861616161",1,"label"),
-        PhoneNumber("+22861616162",1,"label"),
-        PhoneNumber("+22861616163",1,"label"),
-    ))
+    val contact = Contact(
+        1L, "Dupont", "Dupont", "Dupont Dupont", listOf(
+            PhoneNumber("+22861616161", 1, "label"),
+            PhoneNumber("+22861616162", 1, "label"),
+            PhoneNumber("+22861616163", 1, "label"),
+        )
+    )
     ContactItem(contact, onRemove = {
 
     }, onFitContact = {

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.FixConvNum" parent="android:Theme.Material.Light.NoActionBar">
+
+                <item name="android:windowSplashScreenBackground">@color/accent_color</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/shared_with_you</item>
+        <item name="android:windowSplashscreenContent">@layout/custom_splash_content</item>
+        <item name="android:windowSplashScreenAnimationDuration">10000</item>
+        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
+        <item name="android:statusBarColor">@color/accent_color</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+
+
+
+    </style>
+</resources>
