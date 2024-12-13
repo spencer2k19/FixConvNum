@@ -4,6 +4,7 @@ import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.isExtendedNumber
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.isLocalNumber
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.lastEightDigits
+import com.yanncer.fixconvnum.common.PrefSingleton
 import com.yanncer.fixconvnum.common.Resource
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
@@ -20,8 +21,8 @@ class UpdateContacts @Inject constructor(
              try {
                  emit(Resource.Loading())
                  val allContacts = repository.fetchContacts(searchQuery = "")
-                 // filter only contacts that has issues
-                 val contactsToUpdate = allContacts.filter { it.hasPhoneNumberIssue() }
+                 // filter only contacts that has issues and that has not been removed
+                 val contactsToUpdate = allContacts.filter { it.hasPhoneNumberIssue() && !PrefSingleton.getBool(it.id.toString()) }
 
                  contactsToUpdate.forEach {contact ->
                      val updatedPhoneNumbers = mutableListOf<PhoneNumber>()

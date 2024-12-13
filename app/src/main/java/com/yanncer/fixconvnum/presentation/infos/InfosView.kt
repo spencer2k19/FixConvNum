@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,9 @@ fun InfosView() {
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
+        //.background(if (isSystemInDarkTheme()) Color.Black else Color.White)
         .padding(horizontal = 20.dp, vertical = 20.dp)
+
     ) {
         Text(text = "Comment utiliser FixConvNum ?", style = Typography.titleMedium, textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -76,7 +79,7 @@ fun InfosView() {
                     Text(text = "SH", style = TextStyle(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp,
-                        color = Color.Black
+
                     ), modifier = Modifier.align(Alignment.Center))
                 }
 
@@ -166,7 +169,7 @@ fun InfosView() {
                 Text(text = "SH", style = TextStyle(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp,
-                    color = Color.Black
+
                 ), modifier = Modifier.align(Alignment.Center))
             }
 
@@ -295,7 +298,7 @@ fun InfosView() {
         ) {
             Column(horizontalAlignment = Alignment.Start,modifier = Modifier
                 .padding(vertical = 10.dp)
-                .background(color = Color.White)
+              //  .background(color = Color.White)
 
             ) {
                 Row {

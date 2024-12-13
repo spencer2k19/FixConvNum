@@ -18,6 +18,7 @@ class GetContacts @Inject constructor(
                 val contacts = repository.fetchContacts(limit, offset,searchQuery)
                 emit(Resource.Success(contacts))
             }catch (e: Exception) {
+                Log.e("contact","An exception occured: ${e.localizedMessage}")
                 emit(Resource.Error(e.message ?: ""))
             }
         }

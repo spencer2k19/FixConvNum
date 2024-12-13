@@ -4,6 +4,7 @@ package com.yanncer.fixconvnum.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -54,7 +55,7 @@ fun FilledTextField(
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(
-                    color = Color.Black.copy(alpha = 0.05f),
+                    color = if (isSystemInDarkTheme()) Color(0xFF1c1c20) else Color.Black.copy(alpha = 0.05f),
                     shape = RoundedCornerShape(size = 20.dp)
                 ),
             value = text,
@@ -70,7 +71,7 @@ fun FilledTextField(
             placeholder = {
                 Text(
                     text = placeHolder,
-                    color = Color.Black.copy(alpha = 0.4f),
+                    color = if (isSystemInDarkTheme()) Color.White else Color.Black.copy(alpha = 0.4f),
                     modifier = Modifier.padding(
                         start = 5.dp
                     ),

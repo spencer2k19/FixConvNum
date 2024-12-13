@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,7 @@ import com.yanncer.fixconvnum.presentation.components.CustomProgress
 import com.yanncer.fixconvnum.presentation.components.FilledTextField
 import com.yanncer.fixconvnum.presentation.infos.InfosView
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
+import com.yanncer.fixconvnum.presentation.ui.theme.AccentDarkColor
 import kotlinx.coroutines.flow.collectLatest
 
 @ExperimentalMaterial3Api
@@ -92,12 +94,14 @@ fun HomeView(
         "Tous vos contacts sont corrects"
     }
 
+    val schemeButtonColor = if (isSystemInDarkTheme()) AccentDarkColor else AccentColor
+
     val backgroundColor = if (state.isLoading) {
-        AccentColor.copy(alpha = 0.3f)
+        schemeButtonColor.copy(alpha = 0.3f)
     } else if (viewModel.issueExistsInList()) {
-        AccentColor
+        schemeButtonColor
     } else {
-        AccentColor.copy(alpha = 0.1f)
+        schemeButtonColor.copy(alpha = 0.1f)
     }
 
 
@@ -187,7 +191,7 @@ fun HomeView(
     }
 
 
-    Scaffold(containerColor = Color.White, snackbarHost = {
+    Scaffold(containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White, snackbarHost = {
         SnackbarHost(snackbarHostState)
     }, topBar = {
         TopAppBar(title = {
@@ -205,7 +209,7 @@ fun HomeView(
                 }) {
                     Text(
                         text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
-                            color = AccentColor
+                            color = schemeButtonColor
                         )
                     )
                 }
@@ -228,7 +232,7 @@ fun HomeView(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                containerColor = Color.White
+
             ) {
                 DropdownMenuItem(
                     onClick = {
@@ -237,7 +241,9 @@ fun HomeView(
                         expanded = false
                     },
                     text = {
-                        Text("Sélectionner")
+                        Text("Sélectionner", style = MaterialTheme.typography.bodyMedium.copy(
+                            color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                        ))
                     },
                     leadingIcon = {
                         Icon(
@@ -264,7 +270,8 @@ fun HomeView(
 //                )
             }
         }, colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.White
+            containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
+            titleContentColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
         )
         )
 
@@ -331,7 +338,7 @@ fun HomeView(
             Box(
                 modifier = Modifier
                     .padding(vertical = 20.dp, horizontal = 20.dp)
-                    .background(color = Color.White)
+                    .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
                     .align(Alignment.BottomCenter)
 
 
@@ -365,7 +372,7 @@ fun HomeView(
                         ) {
                             Text(
                                 text = "Corriger", style = MaterialTheme.typography.bodyMedium.copy(
-                                    color = if (state.contactsSelected.isEmpty()) Color.Gray else AccentColor,
+                                    color = if (state.contactsSelected.isEmpty()) Color.Gray else schemeButtonColor,
                                     fontWeight = FontWeight.Bold
                                 )
                             )
@@ -398,7 +405,7 @@ fun HomeView(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                sheetState = sheetState, containerColor = Color.White,
+                sheetState = sheetState, containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
                 shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp)
 
             ) {
@@ -409,7 +416,7 @@ fun HomeView(
 
         if (showRemoveDialogState) {
             AlertDialog(
-                containerColor = Color.White,
+                containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
                 onDismissRequest = {
                     viewModel.dismissRemoveDialog()
                 },
@@ -436,7 +443,7 @@ fun HomeView(
                     }) {
                         Text(
                             text = "Non", style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.Black,
+                               color = if (isSystemInDarkTheme()) Color.White else Color.Black,
                                 fontWeight = FontWeight.Bold
                             )
                         )

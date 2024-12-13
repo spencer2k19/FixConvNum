@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.presentation.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -128,7 +129,7 @@ fun ContactItem(contact: Contact,
 
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(if (isSystemInDarkTheme()) Color.Black else Color.White)
                 .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -167,7 +168,7 @@ fun ContactItem(contact: Contact,
                         text = displayData, style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 18.sp,
-                            color = Color.Black
+
                         ), modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -194,7 +195,7 @@ fun ContactItem(contact: Contact,
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = contact.lastName, style = TextStyle(
-                                color = Color.Black,
+
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -213,11 +214,16 @@ fun ContactItem(contact: Contact,
             Spacer(modifier = Modifier.weight(1f))
 
             if (toggleSelectionMode) {
-                Checkbox(checked = select, onCheckedChange = {
-                    onSelect(it)
-                }, colors = CheckboxDefaults.colors(
-                    checkedColor = AccentColor
-                ), )
+                Checkbox(
+                    checked = select,
+                    onCheckedChange = {
+                        onSelect(it)
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = AccentColor,
+                        checkmarkColor = Color.White
+                    ),
+                )
             }
 
 
