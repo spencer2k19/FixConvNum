@@ -52,6 +52,15 @@ class HomeViewModel @Inject constructor(
 
     }
 
+
+    fun filterForOnlyContactsIssues() {
+        _state.value = state.value.copy(onlyContactsIssues = true)
+    }
+
+    fun selectAllContacts() {
+        _state.value = state.value.copy(onlyContactsIssues = false)
+    }
+
     fun issueExistsInList(): Boolean {
         return _state.value.contacts.any {
             it.hasPhoneNumberIssue()

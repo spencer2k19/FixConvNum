@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -18,8 +19,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -32,6 +35,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +69,7 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
 import com.yanncer.fixconvnum.presentation.components.CustomProgress
@@ -103,6 +109,13 @@ fun HomeView(
         schemeButtonColor
     } else {
         schemeButtonColor.copy(alpha = 0.1f)
+    }
+
+    //contacts
+    val contacts = if (state.onlyContactsIssues) {
+        state.contacts.filter { it.hasPhoneNumberIssue() }
+    } else {
+        state.contacts
     }
 
 
@@ -192,67 +205,73 @@ fun HomeView(
     }
 
 
-    Scaffold(containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White, snackbarHost = {
-        SnackbarHost(snackbarHostState)
-    }, topBar = {
-        TopAppBar(title = {
-            Text(
-                text = "Mes contacts", style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
-                )
-            )
-        }, actions = {
-
-            if (state.selectionMode) {
-                TextButton(onClick = {
-                    viewModel.toggleSelectMode()
-                }) {
-                    Text(
-                        text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
-                            color = schemeButtonColor
-                        )
+    Scaffold(
+        containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
+        topBar = {
+            TopAppBar(title = {
+                Text(
+                    text = "Mes contacts", style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
                     )
-                }
-            } else {
-                IconButton(onClick = {
-                    showBottomSheet = true
+                )
+            }, actions = {
 
-                }) {
-                    Icon(Icons.Outlined.Info, contentDescription = "Information about app")
-                }
-
-                IconButton(onClick = {
-                    expanded = true
-                }) {
-                    Icon(Icons.Outlined.MoreVert, contentDescription = "More")
-                }
-            }
-
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-
-            ) {
-                DropdownMenuItem(
-                    onClick = {
-                        // Action pour "Sélectionner"
+                if (state.selectionMode) {
+                    TextButton(onClick = {
                         viewModel.toggleSelectMode()
-                        expanded = false
-                    },
-                    text = {
-                        Text("Sélectionner", style = MaterialTheme.typography.bodyMedium.copy(
-                            color = if (isSystemInDarkTheme()) Color.White else Color.Black
-                        ))
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null
+                    }) {
+                        Text(
+                            text = "Annuler", style = MaterialTheme.typography.bodyMedium.copy(
+                                color = schemeButtonColor
+                            )
                         )
                     }
-                )
+                } else {
+                    IconButton(onClick = {
+                        showBottomSheet = true
+
+                    }) {
+                        Icon(Icons.Outlined.Info, contentDescription = "Information about app")
+                    }
+
+                    IconButton(onClick = {
+                        expanded = true
+                    }) {
+                        Icon(Icons.Outlined.MoreVert, contentDescription = "More")
+                    }
+                }
+
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+
+                    ) {
+                    DropdownMenuItem(
+                        onClick = {
+                            // Action pour "Sélectionner"
+                            viewModel.toggleSelectMode()
+                            expanded = false
+                        },
+                        text = {
+                            Text(
+                                "Sélectionner",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                                )
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null
+                            )
+                        }
+                    )
 //                HorizontalDivider()
 //                DropdownMenuItem(
 //                    onClick = {
@@ -269,14 +288,14 @@ fun HomeView(
 //                        )
 //                    }
 //                )
-            }
-        }, colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
-            titleContentColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
-        )
-        )
+                }
+            }, colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
+                titleContentColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
+            )
+            )
 
-    }) { contentPadding ->
+        }) { contentPadding ->
 
 
         Box(
@@ -305,6 +324,72 @@ fun HomeView(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    FilterChip(
+                        selected = !state.onlyContactsIssues, onClick = {
+                            viewModel.selectAllContacts()
+                        },
+                        border = BorderStroke(0.dp, color = Color.Transparent),
+                        label = {
+                            Text(
+                                text = "Tout", style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+
+
+
+
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor =  if (isSystemInDarkTheme()) Color(0xFF1c1c20) else schemeButtonColor.copy(alpha = 0.05f),
+                            selectedContainerColor = schemeButtonColor.copy(alpha = 0.8f),
+                            labelColor = if (isSystemInDarkTheme()) Color.White else  Color.Black,
+                            selectedLabelColor = Color.White
+
+
+                        ),
+                        shape = CircleShape,
+
+
+
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+
+
+                    FilterChip(
+                        selected = state.onlyContactsIssues, onClick = {
+                            viewModel.filterForOnlyContactsIssues()
+                        },
+                        border = BorderStroke(0.dp, color = Color.Transparent),
+                        label = {
+                            Text(
+                                text = "À corriger", style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+
+
+
+
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor =  if (isSystemInDarkTheme()) Color(0xFF1c1c20) else schemeButtonColor.copy(alpha = 0.05f),
+                            selectedContainerColor = schemeButtonColor.copy(alpha = 0.8f),
+                            labelColor = if (isSystemInDarkTheme()) Color.White else  Color.Black,
+                            selectedLabelColor = Color.White
+
+
+                        ),
+                        shape = CircleShape,
+
+
+
+                    )
+                }
+
+
+
 
                 if (state.isLoading && state.contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
@@ -312,9 +397,9 @@ fun HomeView(
                 }
 
 
-                LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 30.dp)) {
+                LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 20.dp)) {
 
-                    itemsIndexed(state.contacts, key = { _: Int, item: Contact ->
+                    itemsIndexed(contacts, key = { _: Int, item: Contact ->
                         "${item.id} ${viewModel.getDisplayContentOfContact(item)}"
                     }) { index, contact ->
                         ContactItem(contact, onRemove = {
@@ -339,14 +424,13 @@ fun HomeView(
             Box(
                 modifier = Modifier
 
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 10.dp)
                     .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
 
                     .align(Alignment.BottomCenter)
 
-                    .padding(bottom = 20.dp)
-                  //  .shadow(5.dp)
-
+                    .padding(bottom = 10.dp, top = 10.dp)
+                //  .shadow(5.dp)
 
 
             ) {
@@ -412,7 +496,8 @@ fun HomeView(
                 onDismissRequest = {
                     showBottomSheet = false
                 },
-                sheetState = sheetState, containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
+                sheetState = sheetState,
+                containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
                 shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp)
 
             ) {
@@ -450,7 +535,7 @@ fun HomeView(
                     }) {
                         Text(
                             text = "Non", style = MaterialTheme.typography.bodyMedium.copy(
-                               color = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                                color = if (isSystemInDarkTheme()) Color.White else Color.Black,
                                 fontWeight = FontWeight.Bold
                             )
                         )
