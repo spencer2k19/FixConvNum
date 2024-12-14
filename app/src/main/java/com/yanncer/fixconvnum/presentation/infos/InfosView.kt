@@ -1,17 +1,17 @@
 package com.yanncer.fixconvnum.presentation.infos
 
+import android.app.Activity
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -40,12 +40,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import com.yanncer.fixconvnum.R
 import com.yanncer.fixconvnum.presentation.ui.theme.AccentColor
 import com.yanncer.fixconvnum.presentation.ui.theme.Typography
 
+
 @Composable
 fun InfosView() {
+
+    val context = LocalContext.current
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
@@ -351,8 +355,13 @@ fun InfosView() {
         Text(text = "Puis vous choisissez l'option des paramètres. Vous serez redirigés vers les paramètres de votre téléphone pour modifier les conditions d'accès au répertoire téléphonique.",
             style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(40.dp))
-        Row(horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()) {
+
+
+        TextButton(onClick = {
+            val httpIntent = Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/spencer2k19"))
+            context.startActivity(httpIntent)
+
+        }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(text = "By", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.width(5.dp))
             Text(text = "@loic", style = MaterialTheme.typography.bodyMedium.copy(
@@ -360,6 +369,7 @@ fun InfosView() {
                 fontWeight = FontWeight.Normal
             ))
         }
+
 
 
 

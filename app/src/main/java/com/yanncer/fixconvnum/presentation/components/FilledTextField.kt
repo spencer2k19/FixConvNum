@@ -54,7 +54,6 @@ fun FilledTextField(
     obscureText: Boolean = false,
     isError: Boolean = false,
     errorMsg: String = "",
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
 ) {
     Column {
         Box(modifier = Modifier
@@ -64,7 +63,7 @@ fun FilledTextField(
                 shape = CircleShape
             )
             .padding(horizontal = 16.dp)
-            .height(45.dp),
+            .height(40.dp),
             contentAlignment = Alignment.Center
 
 

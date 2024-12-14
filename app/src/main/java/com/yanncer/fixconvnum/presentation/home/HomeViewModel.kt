@@ -43,6 +43,20 @@ class HomeViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UIEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
+
+
+    init {
+        if (!PrefSingleton.getBool("has_already_getting_started")) {
+            _state.value = state.value.copy(hasAlreadyGettingStarted = false)
+            PrefSingleton.saveBool("has_already_getting_started",true)
+        }
+    }
+
+
+    fun toggleGettingStarted() {
+        _state.value = state.value.copy(hasAlreadyGettingStarted = true)
+    }
+
     fun onQueryChange(value: String) {
         _state.value = state.value.copy(query = value)
         viewModelScope.launch {

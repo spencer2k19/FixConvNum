@@ -10,5 +10,6 @@ data class HomeState(var query: String = "",
                     var contact: Contact? = null,
                     var selectionMode: Boolean = false,
                     var contactsSelected : List<Contact> = emptyList(),
-                    var onlyContactsIssues: Boolean = false
+                    var onlyContactsIssues: Boolean = false,
+                    var hasAlreadyGettingStarted: Boolean = true
     )

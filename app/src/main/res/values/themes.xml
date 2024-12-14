@@ -3,5 +3,9 @@
 
     <style name="Theme.FixConvNum" parent="android:Theme.Material.Light.NoActionBar" />
 
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/accent_color</item>
+    </style>
+
 
 </resources>

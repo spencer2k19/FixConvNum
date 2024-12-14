@@ -40,6 +40,8 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -62,6 +64,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,6 +120,21 @@ fun HomeView(
     } else {
         state.contacts
     }
+
+    val appColor = if (isSystemInDarkTheme()) {
+        Color.Black
+    } else {
+        Color.White
+    }
+
+    val appTextColor = if (isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Color.Black
+    }
+
+
+
 
 
     HandleContactPermission(
@@ -249,9 +267,11 @@ fun HomeView(
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
+                    containerColor = appColor
 
                     ) {
                     DropdownMenuItem(
+
                         onClick = {
                             // Action pour "Sélectionner"
                             viewModel.toggleSelectMode()
@@ -270,7 +290,10 @@ fun HomeView(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null
                             )
-                        }
+                        }, colors = MenuDefaults.itemColors(
+                            leadingIconColor = appTextColor,
+                            textColor = appTextColor
+                        )
                     )
 //                HorizontalDivider()
 //                DropdownMenuItem(
@@ -387,10 +410,16 @@ fun HomeView(
 
 
 
-                if (state.isLoading && state.contacts.isEmpty()) {
+                if (state.isLoading && contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     CustomProgress(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }  else if (contacts.isEmpty()) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = "Aucun contacts", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier.fillMaxWidth()
+                        .align(Alignment.CenterHorizontally))
                 }
+
+
 
 
                 LazyColumn(contentPadding = PaddingValues(bottom = 80.dp, top = 20.dp)) {
@@ -470,8 +499,9 @@ fun HomeView(
                 } else {
                     CustomFilledButton(
                         text = buttonContent,
-
+                        isEnabled = viewModel.issueExistsInList(),
                         onClick = {
+
                             callableOnWritePermissionGranted = { viewModel.updateContacts() }
                             callableToShowPermissions()
                         },
@@ -486,11 +516,12 @@ fun HomeView(
 
         }
 
-        if (showBottomSheet) {
+        if (showBottomSheet || !state.hasAlreadyGettingStarted) {
 
             ModalBottomSheet(
                 onDismissRequest = {
                     showBottomSheet = false
+                    viewModel.toggleGettingStarted()
                 },
                 sheetState = sheetState,
                 containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,

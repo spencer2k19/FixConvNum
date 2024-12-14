@@ -28,7 +28,8 @@ fun CustomFilledButton(
     onClick:()->Unit,
     color: Color = AccentColor,
     textColor: Color = Color.White,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    isEnabled: Boolean = true
 
 ) {
 
@@ -37,7 +38,7 @@ fun CustomFilledButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = color),
-        
+        enabled = isEnabled,
         modifier = Modifier
             .fillMaxWidth()
             .background(color = color, shape = RoundedCornerShape(10.dp))

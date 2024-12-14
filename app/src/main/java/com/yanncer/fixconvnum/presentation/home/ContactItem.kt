@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.presentation.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -84,6 +85,12 @@ fun ContactItem(
         else -> {
             if (isSelect) AccentColor else Color.Black
         }
+    }
+
+    val appColor = if (isSystemInDarkTheme()) {
+        Color.White
+    } else {
+        Color.Black
     }
 
 
@@ -177,7 +184,12 @@ fun ContactItem(
                         modifier = Modifier
                             .width(50.dp)
                             .height(50.dp)
-                            .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
+                            .background(
+                                shape = CircleShape,
+                                color = appColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
+
+                            )
+                            .border(width = 1.dp, color = appColor.copy(alpha = 0.1f), shape = CircleShape)
 
                     ) {
                         Text(
