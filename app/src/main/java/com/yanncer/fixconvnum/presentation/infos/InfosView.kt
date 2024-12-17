@@ -7,6 +7,8 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,12 +24,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -48,7 +57,9 @@ import com.yanncer.fixconvnum.presentation.ui.theme.Typography
 
 
 @Composable
-fun InfosView() {
+fun InfosView(
+    onClose: () -> Unit
+) {
 
     val context = LocalContext.current
     val appTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black
@@ -63,10 +74,30 @@ fun InfosView() {
         .padding(horizontal = 20.dp, vertical = 20.dp)
 
     ) {
-        Text(text = "Comment utiliser FixConvNum ?", style = Typography.titleMedium.copy(
-            fontSize = 18.sp
-        ), textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.CenterHorizontally))
+        Box(modifier = Modifier.fillMaxWidth()
+
+
+        ) {
+
+            Icon(Icons.Default.Close, contentDescription = "Close dialog",
+                modifier = Modifier.align(Alignment.CenterStart)
+                    .clip(CircleShape) // Forme circulaire
+                    .clickable(
+                        indication = ripple(bounded = true, radius = 24.dp),
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = {
+                            onClose()
+                        }
+                    )
+)
+
+            Text(
+                text = "Comment utiliser FixConvNum ?", style = Typography.titleMedium.copy(
+                    fontSize = 18.sp
+                ), textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         Spacer(modifier = Modifier.height(20.dp))
 
             Row(modifier = Modifier
@@ -87,9 +118,13 @@ fun InfosView() {
                     .height(50.dp)
                     .background(
                         shape = CircleShape,
-                        color = appTextColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
+                        color = appTextColor.copy(alpha = if (isSystemInDarkTheme()) 0.08f else 0.04f)
                     )
-                    .border(width = 1.dp, color = appTextColor.copy(alpha = 0.1f), shape = CircleShape)
+                    .border(
+                        width = 1.dp,
+                        color = appTextColor.copy(alpha = 0.1f),
+                        shape = CircleShape
+                    )
 
                 ) {
                     Text(text = "SH", style = TextStyle(
@@ -183,7 +218,7 @@ fun InfosView() {
                 .height(50.dp)
                 .background(
                     shape = CircleShape,
-                    color = appTextColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
+                    color = appTextColor.copy(alpha = if (isSystemInDarkTheme()) 0.08f else 0.04f)
                 )
                 .border(width = 1.dp, color = appTextColor.copy(alpha = 0.1f), shape = CircleShape)
                 .padding(vertical = 10.dp)
@@ -412,5 +447,7 @@ fun InfosView() {
 )
 @Composable
 fun PrevInfosView() {
-    InfosView()
+    InfosView{
+
+    }
 }

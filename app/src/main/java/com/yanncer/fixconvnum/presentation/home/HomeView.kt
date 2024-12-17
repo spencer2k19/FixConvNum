@@ -98,7 +98,7 @@ fun HomeView(
 
     val state = viewModel.state.value
     val showRemoveDialogState = viewModel.showRemoveDialogState.value
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -150,14 +150,16 @@ fun HomeView(
 
 
 
+    if (state.hasAlreadyGettingStarted) {
+        HandleContactPermission(
+            onPermissionGranted = { viewModel.fetchContacts() },
+            onPermissionDenied = {
 
-    HandleContactPermission(
-        onPermissionGranted = { viewModel.fetchContacts() },
-        onPermissionDenied = {
+            },
+            context = LocalContext.current
+        )
+    }
 
-        },
-        context = LocalContext.current
-    )
 
     ///WRITE PERMISSIONS HANDLING
     var permissionState by remember { mutableStateOf<PermissionState>(PermissionState.Idle) }
@@ -437,9 +439,14 @@ fun HomeView(
                 if (state.isLoading && contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
                     CustomProgress(modifier = Modifier.align(Alignment.CenterHorizontally))
+                } else if(!state.hasAlreadyGettingStarted) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = "Veuillez patienter", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally))
                 }  else if (contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text(text = "Aucun contacts", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier
+                    Text(text = "Aucun contacts...", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally))
                 }
@@ -555,17 +562,25 @@ fun HomeView(
         if (showBottomSheet || !state.hasAlreadyGettingStarted) {
 
             ModalBottomSheet(
+
                 onDismissRequest = {
                     showBottomSheet = false
                     viewModel.toggleGettingStarted()
                 },
                 sheetState = sheetState,
                 containerColor = if (isSystemInDarkTheme()) Color(0xFF232428) else Color.White,
-                shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp)
+                shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
+                tonalElevation = 10.dp,
+
+
+
 
             ) {
                 // Sheet content
-                InfosView()
+                InfosView{
+                    showBottomSheet = false
+                    viewModel.toggleGettingStarted()
+                }
             }
         }
 
