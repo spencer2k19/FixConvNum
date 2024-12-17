@@ -15,21 +15,26 @@ import javax.inject.Inject
 class FixContacts @Inject constructor(
     private val repository: ContactsRepository
 ) {
-     operator fun invoke(contacts: List<Contact>): Flow<Resource<List<Contact>>> {
-        return  flow {
+    operator fun invoke(contacts: List<Contact>): Flow<Resource<List<Contact>>> {
+        return flow {
             try {
                 emit(Resource.Loading())
 
-                contacts.forEach {contact ->
+                contacts.forEach { contact ->
                     val updatedPhoneNumbers = mutableListOf<PhoneNumber>()
-                    contact.phoneNumbers.forEach {phoneNumber ->
+                    contact.phoneNumbers.forEach { phoneNumber ->
                         val cleanNumber = phoneNumber.number.replace("\\s".toRegex(), "")
                         when {
                             cleanNumber.isLocalNumber() -> {
                                 //Create extended version
                                 val extendedNumber = "+22901" + cleanNumber.lastEightDigits()
                                 // Verify if extended phone number doesn't exist
-                                if (!contact.phoneNumbers.any { it.number.replace("\\s".toRegex(), "") == extendedNumber }) {
+                                if (!contact.phoneNumbers.any {
+                                        it.number.replace(
+                                            "\\s".toRegex(),
+                                            ""
+                                        ) == extendedNumber
+                                    }) {
                                     updatedPhoneNumbers.add(
                                         PhoneNumber(
                                             number = extendedNumber,
@@ -45,7 +50,12 @@ class FixContacts @Inject constructor(
                                 val localNumber = cleanNumber.lastEightDigits()
 
                                 //Verify if local number doesn't exists
-                                if (!contact.phoneNumbers.any { it.number.replace("\\s".toRegex(), "") == localNumber }) {
+                                if (!contact.phoneNumbers.any {
+                                        it.number.replace(
+                                            "\\s".toRegex(),
+                                            ""
+                                        ) == localNumber
+                                    }) {
                                     updatedPhoneNumbers.add(
                                         PhoneNumber(
                                             number = localNumber,
@@ -57,15 +67,14 @@ class FixContacts @Inject constructor(
                             }
                         }
 
-                        //add new phone numbers
-                        if (updatedPhoneNumbers.isNotEmpty()) {
-//                    val finalPhoneNumbers = contact.phoneNumbers.toMutableList()
-//                    finalPhoneNumbers.addAll(updatedPhoneNumbers)
 
-                            //update contact with new phone numbers
-                            val updatedContact = contact.copy(phoneNumbers = updatedPhoneNumbers)
-                            repository.updateContact(updatedContact)
-                        }
+                    }
+
+                    //add new phone numbers
+                    if (updatedPhoneNumbers.isNotEmpty()) {
+                        //update contact with new phone numbers
+                        val updatedContact = contact.copy(phoneNumbers = updatedPhoneNumbers)
+                        repository.updateContact(updatedContact)
                     }
                 }
                 val allUpdated = repository.fetchContacts(searchQuery = "")

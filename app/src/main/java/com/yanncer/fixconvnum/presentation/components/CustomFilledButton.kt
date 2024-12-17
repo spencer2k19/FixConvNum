@@ -28,8 +28,10 @@ fun CustomFilledButton(
     onClick:()->Unit,
     color: Color = AccentColor,
     textColor: Color = Color.White,
+
     isLoading: Boolean = false,
-    isEnabled: Boolean = true
+    isEnabled: Boolean = true,
+    borderColor: Color = AccentColor,
 
 ) {
 
@@ -43,7 +45,7 @@ fun CustomFilledButton(
             .fillMaxWidth()
             .background(color = color, shape = RoundedCornerShape(10.dp))
             .height(50.dp),
-        border = BorderStroke(width = 1.dp,color = AccentColor.copy(alpha = 0.5f)),
+        border = BorderStroke(width = 1.dp,color = borderColor),
         shape = RoundedCornerShape(10.dp)
 
     ) {
@@ -53,7 +55,7 @@ fun CustomFilledButton(
         } else {
             Text(text = text, color = textColor, style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp
+                fontSize = 17.sp
             ))
         }
 

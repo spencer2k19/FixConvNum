@@ -61,15 +61,14 @@ class UpdateContacts @Inject constructor(
                              }
                          }
 
-                         //add new phone numbers
-                         if (updatedPhoneNumbers.isNotEmpty()) {
-//                    val finalPhoneNumbers = contact.phoneNumbers.toMutableList()
-//                    finalPhoneNumbers.addAll(updatedPhoneNumbers)
 
-                             //update contact with new phone numbers
-                             val updatedContact = contact.copy(phoneNumbers = updatedPhoneNumbers)
-                             repository.updateContact(updatedContact)
-                         }
+                     }
+
+                     //add new phone numbers
+                     if (updatedPhoneNumbers.isNotEmpty()) {
+                         //update contact with new phone numbers
+                         val updatedContact = contact.copy(phoneNumbers = updatedPhoneNumbers)
+                         repository.updateContact(updatedContact)
                      }
                  }
                  val allUpdated = repository.fetchContacts(searchQuery = "")

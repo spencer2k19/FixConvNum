@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,8 +28,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,6 +40,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +65,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -72,6 +78,7 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.yanncer.fixconvnum.R
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.presentation.components.CustomFilledButton
@@ -112,6 +119,13 @@ fun HomeView(
         schemeButtonColor
     } else {
         schemeButtonColor.copy(alpha = 0.1f)
+    }
+
+
+    val borderColor = if (viewModel.issueExistsInList()) {
+        Color.Transparent
+    } else {
+        schemeButtonColor.copy(alpha = 0.5f)
     }
 
     //contacts
@@ -257,9 +271,10 @@ fun HomeView(
                     }
 
                     IconButton(onClick = {
-                        expanded = true
+                        viewModel.toggleSelectMode()
+                      //  expanded = true
                     }) {
-                        Icon(Icons.Outlined.MoreVert, contentDescription = "More")
+                        Icon(Icons.Outlined.CheckCircle, contentDescription = "More")
                     }
                 }
 
@@ -339,11 +354,20 @@ fun HomeView(
                     }, placeHolder = "Rechercher un nom ou prénom",
                         trailingIcon = {
                             if (state.query.isNotEmpty()) {
-                                IconButton(onClick = { viewModel.onQueryChange("") }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Search", tint = Color.Black)
-                                }
+                                Icon(Icons.Rounded.Clear, contentDescription = "Search",  tint = appTextColor.copy(0.5f), modifier = Modifier.clickable {
+                                    viewModel.onQueryChange("")
+                                })
+//                                IconButton(onClick = { viewModel.onQueryChange("") }) {
+//                                    Icon(Icons.Default.Close, contentDescription = "Search", tint = Color.Black)
+//                                }
                             }
+                        },
+                        leadingIcon = {
+                            Icon(painter = painterResource(id = R.drawable.baseline_search_24), contentDescription ="Search contacts",
+                               tint = appTextColor.copy(0.5f)
+                                )
                         }
+
                     )
                 }
 
@@ -415,7 +439,8 @@ fun HomeView(
                     CustomProgress(modifier = Modifier.align(Alignment.CenterHorizontally))
                 }  else if (contacts.isEmpty()) {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text(text = "Aucun contacts", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier.fillMaxWidth()
+                    Text(text = "Aucun contacts", textAlign = TextAlign.Center ,style = MaterialTheme.typography.bodyMedium, modifier = Modifier
+                        .fillMaxWidth()
                         .align(Alignment.CenterHorizontally))
                 }
 
@@ -427,6 +452,12 @@ fun HomeView(
                     itemsIndexed(contacts, key = { _: Int, item: Contact ->
                         "${item.id} ${viewModel.getDisplayContentOfContact(item)}"
                     }) { index, contact ->
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 30.dp),
+
+                            color = appTextColor.copy(alpha = if (isSystemInDarkTheme()) 0.08f  else 0.05f),
+
+                            )
                         ContactItem(contact, onRemove = {
                             viewModel.showRemoveDialog(contact)
                         }, onFitContact = {
@@ -439,7 +470,11 @@ fun HomeView(
                             isSelect = viewModel.isContactSelected(contact.id)
                         )
 //                        if (index < state.contacts.lastIndex) {
-//                            HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
+//                            HorizontalDivider(modifier = Modifier.padding(start = 30.dp),
+//
+//                                color = appTextColor.copy(alpha = 0.05f),
+//
+//                                )
 //                        }
                     }
                 }
@@ -505,6 +540,7 @@ fun HomeView(
                             callableOnWritePermissionGranted = { viewModel.updateContacts() }
                             callableToShowPermissions()
                         },
+                        borderColor = borderColor,
                         color = backgroundColor,
                         textColor = if (viewModel.issueExistsInList()) Color.White else AccentColor,
                     )
@@ -524,7 +560,7 @@ fun HomeView(
                     viewModel.toggleGettingStarted()
                 },
                 sheetState = sheetState,
-                containerColor = if (isSystemInDarkTheme()) Color.Black else Color.White,
+                containerColor = if (isSystemInDarkTheme()) Color(0xFF232428) else Color.White,
                 shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp)
 
             ) {

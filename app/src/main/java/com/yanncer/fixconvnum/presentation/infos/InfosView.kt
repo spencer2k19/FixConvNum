@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,11 @@ import com.yanncer.fixconvnum.presentation.ui.theme.Typography
 fun InfosView() {
 
     val context = LocalContext.current
+    val appTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val opacity = if (isSystemInDarkTheme()) 0.1f else 0.07f
+
+
+
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
@@ -57,7 +63,9 @@ fun InfosView() {
         .padding(horizontal = 20.dp, vertical = 20.dp)
 
     ) {
-        Text(text = "Comment utiliser FixConvNum ?", style = Typography.titleMedium, textAlign = TextAlign.Center,
+        Text(text = "Comment utiliser FixConvNum ?", style = Typography.titleMedium.copy(
+            fontSize = 18.sp
+        ), textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally))
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -66,7 +74,7 @@ fun InfosView() {
 
                 .border(
                     width = 1.dp,
-                    color = Color.Gray.copy(0.4f),
+                    color = appTextColor.copy(opacity),
                     shape = RoundedCornerShape(10.dp)
                 )
                 .padding(10.dp),
@@ -77,7 +85,11 @@ fun InfosView() {
                 Box(modifier = Modifier
                     .width(50.dp)
                     .height(50.dp)
-                    .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
+                    .background(
+                        shape = CircleShape,
+                        color = appTextColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
+                    )
+                    .border(width = 1.dp, color = appTextColor.copy(alpha = 0.1f), shape = CircleShape)
 
                 ) {
                     Text(text = "SH", style = TextStyle(
@@ -87,24 +99,27 @@ fun InfosView() {
                     ), modifier = Modifier.align(Alignment.Center))
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(15.dp))
                 Column(horizontalAlignment = Alignment.Start) {
                     Row {
                         Text(text = "Steve", style = TextStyle(
-                            fontWeight = FontWeight.W400
+                            fontWeight = FontWeight.W400,
+                            fontSize = 17.sp
                         )
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(text = "Jobs", style = TextStyle(
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
+
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp
                         )
                         )
 
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Text(text = "+22900000001, 0100000001", style = TextStyle(
-                        lineHeight = 20.sp
+                        lineHeight = 20.sp,
+                        fontSize = 15.sp
                     ), modifier = Modifier.padding(end = 10.dp)
                     )
                 }
@@ -129,7 +144,7 @@ fun InfosView() {
                     fontSize = 15.sp
                 )
             ) {
-                append(" **WhatsApp** ")
+                append(" WhatsApp ")
 
             }
             append("de les identifier.")
@@ -140,7 +155,7 @@ fun InfosView() {
 
             .border(
                 width = 1.dp,
-                color = Color.Gray.copy(0.4f),
+                color = appTextColor.copy(opacity),
                 shape = RoundedCornerShape(10.dp)
             ),
             verticalAlignment = Alignment.CenterVertically
@@ -166,7 +181,11 @@ fun InfosView() {
             Box(modifier = Modifier
                 .width(50.dp)
                 .height(50.dp)
-                .background(shape = CircleShape, color = Color.Gray.copy(alpha = 0.4f))
+                .background(
+                    shape = CircleShape,
+                    color = appTextColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
+                )
+                .border(width = 1.dp, color = appTextColor.copy(alpha = 0.1f), shape = CircleShape)
                 .padding(vertical = 10.dp)
 
             ) {
@@ -177,24 +196,27 @@ fun InfosView() {
                 ), modifier = Modifier.align(Alignment.Center))
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(15.dp))
             Column(modifier = Modifier.padding(vertical = 10.dp),horizontalAlignment = Alignment.Start) {
                 Row {
                     Text(text = "Steve", style = TextStyle(
-                        fontWeight = FontWeight.W400
+                        fontWeight = FontWeight.W400,
+                        fontSize = 17.sp
                     )
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(text = "Jobs", style = TextStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
+
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
                     )
                     )
 
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "+22900000001, 0100000001", style = TextStyle(
-                    lineHeight = 20.sp
+                    lineHeight = 20.sp,
+                    fontSize = 15.sp
                 ), modifier = Modifier.padding(end = 10.dp)
                 )
             }
@@ -210,7 +232,7 @@ fun InfosView() {
 
             .border(
                 width = 1.dp,
-                color = Color.Gray.copy(0.4f),
+                color = appTextColor.copy(opacity),
                 shape = RoundedCornerShape(10.dp)
             )
             .padding(10.dp),
@@ -224,24 +246,27 @@ fun InfosView() {
                     .width(50.dp)
                     .height(50.dp))
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(15.dp))
             Column(horizontalAlignment = Alignment.Start) {
                 Row {
                     Text(text = "Steve", style = TextStyle(
-                        fontWeight = FontWeight.W400
+                        fontWeight = FontWeight.W400,
+                        fontSize = 17.sp
                     )
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(text = "Jobs", style = TextStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
+
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
                     )
                     )
 
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "97000000", style = TextStyle(
-                    lineHeight = 20.sp
+                    lineHeight = 20.sp,
+                    fontSize = 15.sp
                 ), modifier = Modifier.padding(end = 10.dp)
                 )
 
@@ -274,7 +299,7 @@ fun InfosView() {
             append(" par le nouveau format des numeros béninois. Ils sont à l'origine des problèmes rencontrés dans l'application")
             withStyle(
                 SpanStyle(
-                    color = Color.Black,
+
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
@@ -293,7 +318,7 @@ fun InfosView() {
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = Color.Gray.copy(alpha = 0.4f),
+                color = appTextColor.copy(opacity),
                 shape = RoundedCornerShape(10.dp)
             ),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -307,18 +332,20 @@ fun InfosView() {
             ) {
                 Row {
                     Text(text = "Steve", style = TextStyle(
-                        fontWeight = FontWeight.W400
+                        fontWeight = FontWeight.W400,
+                        fontSize = 17.sp
                     )
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(text = "Jobs", style = TextStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
+
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
                     )
                     )
 
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(text = "97000000", style = TextStyle(
                     lineHeight = 20.sp
                 ), modifier = Modifier.padding(end = 10.dp)
@@ -347,18 +374,12 @@ fun InfosView() {
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Vous pouvez aussi corriger un contact à la fois, en le glissant vers la gauche.", style = MaterialTheme.typography
             .bodyMedium)
-        Spacer(modifier = Modifier.height(25.dp))
-        Text(text = "Si vous désirez modifier les contacts auquels auront accès cette application, veuillez cliquer sur l'icône dans le coin supérieur droit comme présenté ci-dessous :",
-            style = MaterialTheme.typography.bodyMedium)
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Puis vous choisissez l'option des paramètres. Vous serez redirigés vers les paramètres de votre téléphone pour modifier les conditions d'accès au répertoire téléphonique.",
-            style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(40.dp))
 
 
+
         TextButton(onClick = {
-            val httpIntent = Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/spencer2k19"))
+            val httpIntent = Intent(Intent.ACTION_VIEW,Uri.parse("https://www.linkedin.com/in/loic-hacheme/"))
             context.startActivity(httpIntent)
 
         }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -369,6 +390,8 @@ fun InfosView() {
                 fontWeight = FontWeight.Normal
             ))
         }
+
+        Spacer(modifier = Modifier.height(40.dp))
 
 
 

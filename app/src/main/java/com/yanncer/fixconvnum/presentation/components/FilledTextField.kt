@@ -55,22 +55,23 @@ fun FilledTextField(
     isError: Boolean = false,
     errorMsg: String = "",
 ) {
+    val appTextColor = if (isSystemInDarkTheme()) Color.White.copy(alpha = 0.05f) else Color.Black.copy(0.04f)
     Column {
         Box(modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = if (isSystemInDarkTheme()) Color(0xFF1c1c20) else Color.Black.copy(alpha = 0.05f),
-                shape = CircleShape
+                color = appTextColor,
+                shape = RoundedCornerShape(10.dp)
             )
-            .padding(horizontal = 16.dp)
-            .height(40.dp),
+            .padding(horizontal = 10.dp)
+            .height(38.dp),
             contentAlignment = Alignment.Center
 
 
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (leadingIcon != null) {
-                    Box(modifier = Modifier.padding(end = 8.dp)) {
+                    Box(modifier = Modifier.padding(end = 4.dp)) {
                         leadingIcon()
                     }
                 }
@@ -78,9 +79,14 @@ fun FilledTextField(
                     value = text,
                     onValueChange = onValueChange,
 
+
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = if (leadingIcon != null) 0.dp else 8.dp, top = 4.dp, bottom = 4.dp),
+                        .padding(
+                            start = if (leadingIcon != null) 0.dp else 8.dp,
+                            top = 4.dp,
+                            bottom = 4.dp
+                        ),
                     singleLine = true,
 
 
@@ -94,9 +100,10 @@ fun FilledTextField(
                     //                        shape = CircleShape
                     //                    ),
                     textStyle = TextStyle(
-                        color = Color.Black
+                        color = if (isSystemInDarkTheme()) Color.White  else Color.Black
                     ),
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+
                     visualTransformation = if (obscureText) PasswordVisualTransformation() else VisualTransformation.None,
 
 
@@ -124,7 +131,7 @@ fun FilledTextField(
                 }
 
                 if (trailingIcon != null) {
-                    Box(modifier = Modifier.padding(start = 8.dp)) {
+                    Box(modifier = Modifier.padding(start = 4.dp)) {
                         trailingIcon()
                     }
                 }

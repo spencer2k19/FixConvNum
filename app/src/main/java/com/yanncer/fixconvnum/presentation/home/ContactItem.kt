@@ -187,7 +187,6 @@ fun ContactItem(
                             .background(
                                 shape = CircleShape,
                                 color = appColor.copy(alpha = if (isSystemInDarkTheme())0.08f else 0.04f)
-
                             )
                             .border(width = 1.dp, color = appColor.copy(alpha = 0.1f), shape = CircleShape)
 
@@ -204,37 +203,41 @@ fun ContactItem(
 
 
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(15.dp))
                 Column(horizontalAlignment = Alignment.Start) {
 
                     if (contact.firstName.isEmpty() || contact.lastName.isEmpty()) {
                         Text(
                             text = contact.displayName, style = TextStyle(
-                                fontWeight = FontWeight.W400
+                                fontWeight = FontWeight.W400,
+                                fontSize = 17.sp
                             )
                         )
                     } else {
                         Row {
                             Text(
                                 text = contact.firstName, style = TextStyle(
-                                    fontWeight = FontWeight.W400
+                                    fontWeight = FontWeight.W400,
+                                    fontSize = 17.sp
                                 )
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
                                 text = contact.lastName, style = TextStyle(
 
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp
                                 )
                             )
 
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Text(
                         text = phoneNumbers, style = TextStyle(
-                            lineHeight = 20.sp
+                            lineHeight = 20.sp,
+                            fontSize = 15.sp
                         ), modifier = Modifier.padding(end = 10.dp)
                     )
                 }
@@ -250,8 +253,8 @@ fun ContactItem(
                     contentDescription = "",
 
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 20.dp),
+                        .align(Alignment.TopEnd)
+                        .padding(end = 20.dp, top = 10.dp),
                     tint = colorCheckbox
 
                 )
