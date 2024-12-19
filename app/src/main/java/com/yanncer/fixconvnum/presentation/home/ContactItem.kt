@@ -74,7 +74,7 @@ fun ContactItem(
                 else -> false
             }
         },
-          positionalThreshold = { it  }
+          positionalThreshold = { it * 0.5f  }
     )
 
     val colorCheckbox = when (isSystemInDarkTheme()) {

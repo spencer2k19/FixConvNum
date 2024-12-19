@@ -29,11 +29,14 @@ class FixContacts @Inject constructor(
                                 //Create extended version
                                 val extendedNumber = "+22901" + cleanNumber.lastEightDigits()
                                 // Verify if extended phone number doesn't exist
-                                if (!contact.phoneNumbers.any {
-                                        it.number.replace(
-                                            "\\s".toRegex(),
-                                            ""
-                                        ) == extendedNumber
+                                if (
+                                    !contact.phoneNumbers.any {
+                                        it.number.replace("\\s".toRegex(), "") in listOf(
+                                            extendedNumber,
+                                            "0022901" + cleanNumber.lastEightDigits(),
+                                            "01" + cleanNumber.lastEightDigits()
+                                        )
+
                                     }) {
                                     updatedPhoneNumbers.add(
                                         PhoneNumber(
@@ -54,11 +57,17 @@ class FixContacts @Inject constructor(
                                         it.number.replace(
                                             "\\s".toRegex(),
                                             ""
-                                        ) == localNumber
-                                    }) {
+                                        ) in listOf(
+                                            localNumber,
+                                            "+229$localNumber",
+                                            "00229$localNumber"
+                                        )
+                                    }
+
+                                ) {
                                     updatedPhoneNumbers.add(
                                         PhoneNumber(
-                                            number = localNumber,
+                                            number = "+229$localNumber",
                                             type = phoneNumber.type,
                                             label = phoneNumber.label
                                         )
