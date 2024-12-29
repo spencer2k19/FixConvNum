@@ -3,6 +3,7 @@ package com.yanncer.fixconvnum.data
 import android.content.ContentProviderOperation
 import android.content.Context
 import android.provider.ContactsContract
+import android.util.Log
 import com.yanncer.fixconvnum.common.PrefSingleton
 import com.yanncer.fixconvnum.domain.models.Contact
 import com.yanncer.fixconvnum.domain.models.PhoneNumber
@@ -108,27 +109,65 @@ class ContactsRepositoryImpl(private val context: Context): ContactsRepository {
         contacts
     }
 
+    fun getRawContactId(contactId: Long, context: Context): Long? {
+        val contentResolver = context.contentResolver
+        var rawContactId: Long? = null
+
+        val cursor = contentResolver.query(
+            ContactsContract.RawContacts.CONTENT_URI,
+            arrayOf(ContactsContract.RawContacts._ID),
+            "${ContactsContract.RawContacts.CONTACT_ID} = ?",
+            arrayOf(contactId.toString()),
+            null
+        )
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                rawContactId = it.getLong(it.getColumnIndexOrThrow(ContactsContract.RawContacts._ID))
+            }
+        }
+
+        return rawContactId
+    }
+
     override suspend fun updateContact(contact: Contact) {
         withContext(Dispatchers.IO) {
-            //Get content resolver to update contacts
-            val contentResolver = context.contentResolver
-            val operations = arrayListOf<ContentProviderOperation>()
+            try {
+                val contentResolver = context.contentResolver
+                val operations = arrayListOf<ContentProviderOperation>()
+                val rawContactId = getRawContactId(contact.id, context)
+                if (rawContactId == null) {
+                    Log.e("contact", "Raw contact ID not found for contact ID: ${contact.id}")
+                    return@withContext
+                }
 
-            contact.phoneNumbers.forEach { phoneNumber ->
-                operations.add(
-                    ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValue(ContactsContract.Data.RAW_CONTACT_ID, contact.id)
-                        .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        //   .withValue(ContactsContract.CommonDataKinds.Phone.CONTACT_ID, contact.id)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber.number)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, phoneNumber.type)
+                contact.phoneNumbers.forEach { phoneNumber ->
+                    operations.add(
+
+                        ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                          //  .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                          //  .withValue(ContactsContract.Data.CONTACT_ID, contact.id)
+                            .withValue(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
+                            .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                            //   .withValue(ContactsContract.CommonDataKinds.Phone.CONTACT_ID, contact.id)
+                            .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneNumber.number)
+                            .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, phoneNumber.type)
+                          //  .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+
                         .build()
-                )
+                    )
+                }
+
+
+                //Execute update of operations
+                contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
+                Log.e("contact","Contact is added successfully: $operations")
+
+            }catch (e: Exception) {
+                Log.e("contact","An exception occured: ${e.localizedMessage}")
             }
+            //Get content resolver to update contacts
 
-
-            //Execute update of operations
-            contentResolver.applyBatch(ContactsContract.AUTHORITY, operations)
         }
 
     }

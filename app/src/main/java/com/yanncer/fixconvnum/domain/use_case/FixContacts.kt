@@ -1,5 +1,6 @@
 package com.yanncer.fixconvnum.domain.use_case
 
+import android.util.Log
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.hasPhoneNumberIssue
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.isExtendedNumber
 import com.yanncer.fixconvnum.common.BeninPhoneValidator.isLocalNumber
@@ -90,6 +91,7 @@ class FixContacts @Inject constructor(
 
                 emit(Resource.Success(allUpdated))
             } catch (e: Exception) {
+                Log.e("contact","An exception while fixed contacts: ${e.localizedMessage}")
                 emit(Resource.Error(e.message ?: ""))
             }
         }
